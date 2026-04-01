@@ -3,3706 +3,860 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电子目视化数据维护报表系统 - 双文件对比版</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.1.0/gridstack.min.css">
+    <title>新品首台车停线分析工具 | 全功能版</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-        }
-        
         body {
-            background-color: #f5f7fa;
-            color: #333;
-            padding: 20px;
-            min-height: 100vh;
+            background: #f0f2f8;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding-top: 0;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-        }
-        
-        header {
-            background: linear-gradient(135deg, #1a5fb4 0%, #1c71d8 100%);
-            color: white;
-            padding: 25px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .header-left h1 {
-            font-size: 26px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .header-left p {
-            font-size: 15px;
-            opacity: 0.9;
-        }
-        
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .stats-badge {
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        
-        /* 简化控制区域样式，更接近图片中的布局 */
-        .controls {
-            padding: 20px 30px;
-            background-color: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            align-items: start;
-        }
-        
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .control-group label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        select, .file-upload-btn, .btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e0;
-            background-color: white;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-        }
-        
-        select:focus, .file-upload-btn:hover, .btn:hover {
-            border-color: #1a5fb4;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(26, 95, 180, 0.1);
-        }
-        
-        .file-upload-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-upload-btn {
-            background-color: #1a5fb4;
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            justify-content: center;
-        }
-        
-        .file-upload-btn:hover {
-            background-color: #164d9c;
-        }
-        
-        .file-upload-wrapper input[type=file] {
-            position: absolute;
-            left: 0;
+        /* 固定顶部标题栏 */
+        .sticky-title {
+            position: sticky;
             top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
+            z-index: 1000;
+            background: #f0f2f8;
+            padding-top: 12px;
+            padding-bottom: 8px;
         }
-        
-        .file-name {
-            margin-top: 5px;
-            font-size: 14px;
-            color: #4a5568;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .title-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
         }
-        
-        .file-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-right: 8px;
-        }
-        
-        .file-tag-a {
-            background-color: #1a5fb4;
-            color: white;
-        }
-        
-        .file-tag-b {
-            background-color: #10b981;
-            color: white;
-        }
-        
-        .main-content {
-            padding: 20px;
-            min-height: 600px;
-        }
-        
-        /* GridStack样式 */
-        .grid-stack {
-            min-height: 600px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-        }
-        
-        .grid-stack-item {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .grid-stack-item-content {
-            height: 100%;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-        }
-        
-        .card {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 15px 20px 10px;
-            border-bottom: 1px solid #e2e8f0;
-            background-color: #f8fafc;
-            cursor: move;
-            flex-shrink: 0;
-        }
-        
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-title i {
-            color: #1a5fb4;
-        }
-        
-        .card-content {
-            flex: 1;
-            padding: 0 20px 20px;
-            overflow: auto;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #1a5fb4;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #4a5568;
-        }
-        
-        .stat-change {
-            margin-top: 8px;
-            font-size: 12px;
-            padding: 4px 12px;
+        /* 美化筛选卡片 */
+        .filter-card {
+            background: white;
             border-radius: 20px;
-            background-color: #e6fffa;
-            color: #0d9488;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            transition: 0.2s;
+            border: 1px solid rgba(0,0,0,0.03);
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        
-        th {
-            background-color: #f7fafc;
-            color: #4a5568;
+        .filter-label {
             font-weight: 600;
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        tr:hover {
-            background-color: #f7fafc;
-        }
-        
-        .rank-badge {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background-color: #1a5fb4;
-            color: white;
-            text-align: center;
-            line-height: 22px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-right: 10px;
-        }
-        
-        .rank-badge.gold {
-            background-color: #f59e0b;
-        }
-        
-        .rank-badge.silver {
-            background-color: #94a3b8;
-        }
-        
-        .rank-badge.bronze {
-            background-color: #b45309;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background-color: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background-color: #1a5fb4;
-            border-radius: 4px;
-        }
-        
-        .category-tag {
-            display: block;
-            padding: 10px 12px;
-            background-color: #f8fafc;
-            color: #1a5fb4;
-            border-radius: 8px;
-            font-size: 13px;
+            font-size: 0.85rem;
             margin-bottom: 8px;
-            border-left: 4px solid #1a5fb4;
+            color: #2c3e66;
+            letter-spacing: 0.5px;
         }
-        
-        .category-tag .category-name {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 5px;
+        .custom-select {
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            background-color: #fefefe;
+            transition: 0.2s;
+            font-size: 0.9rem;
         }
-        
-        .category-stats {
+        .custom-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+        .filter-group {
+            margin-bottom: 12px;
+        }
+        .auto-import-bar {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 24px;
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #4a5568;
-        }
-        
-        .category-stat-item {
-            display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             align-items: center;
+            gap: 12px;
+            border: 1px solid #eef2ff;
         }
-        
-        .category-stat-value {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-        
-        .category-stat-label {
-            font-size: 11px;
-            color: #718096;
-        }
-        
-        .footer {
-            padding: 20px 30px;
-            text-align: center;
-            color: #718096;
-            font-size: 14px;
-            border-top: 1px solid #e2e8f0;
-            background-color: #f8fafc;
-        }
-        
-        .highlight {
-            background-color: #fff9db;
-            padding: 2px 6px;
-            border-radius: 4px;
+        .file-name-display {
+            font-size: 13px;
+            color: #2563eb;
+            background: #eef2ff;
+            padding: 4px 14px;
+            border-radius: 40px;
+            display: inline-block;
             font-weight: 500;
         }
-        
-        .legend {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 10px;
+        .copy-btn {
+            background: #eef2ff;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 14px;
+            font-size: 12px;
+            transition: 0.2s;
         }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
+        .copy-btn:hover {
+            background: #d9e6ff;
         }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+        .card-custom {
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            margin-bottom: 28px;
+            border: none;
+            overflow: hidden;
         }
-        
-        .data-upload-info {
-            background-color: #f0f9ff;
-            border-left: 4px solid #1a5fb4;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            text-align: center;
-            color: #718096;
-            height: 100%;
-        }
-        
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #cbd5e0;
-        }
-        
-        .empty-state h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #4a5568;
-        }
-        
-        .empty-state p {
-            max-width: 500px;
-            line-height: 1.5;
-        }
-        
-        .dashboard-controls {
+        .card-header-custom {
+            background: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 16px 24px;
+            font-weight: 700;
+            font-size: 1.2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-        
-        .dashboard-buttons {
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2c7da0;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #5f7d9c;
+        }
+        .btn-sm-custom {
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        .chart-row {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        
-        .btn {
-            padding: 8px 15px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e0;
-            background-color: white;
-            color: #4a5568;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        
-        .btn:hover {
-            background-color: #f7fafc;
-            border-color: #a0aec0;
-        }
-        
-        .btn-primary {
-            background-color: #1a5fb4;
-            color: white;
-            border-color: #1a5fb4;
-        }
-        
-        .btn-primary:hover {
-            background-color: #164d9c;
-            border-color: #164d9c;
-        }
-        
-        .btn-success {
-            background-color: #10b981;
-            color: white;
-            border-color: #10b981;
-        }
-        
-        .btn-success:hover {
-            background-color: #0da271;
-            border-color: #0da271;
-        }
-        
-        .btn-warning {
-            background-color: #f59e0b;
-            color: white;
-            border-color: #f59e0b;
-        }
-        
-        .btn-warning:hover {
-            background-color: #d97706;
-            border-color: #d97706;
-        }
-        
-        .chart-container {
+        .chart-half {
+            flex: 1;
+            min-width: 280px;
             position: relative;
-            height: calc(100% - 40px);
+        }
+        .chart-container {
+            height: 360px;
             width: 100%;
         }
-        
-        .chart-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #718096;
-            text-align: center;
-        }
-        
-        .chart-placeholder i {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: #cbd5e0;
-        }
-        
-        /* 加载动画 */
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1a5fb4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .module-count {
-            display: inline-block;
-            padding: 2px 8px;
-            background-color: #1a5fb4;
-            color: white;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-        
-        .ui-resizable-handle {
-            background-color: #e2e8f0;
-            border-radius: 2px;
-        }
-        
-        .ui-resizable-se {
-            width: 15px !important;
-            height: 15px !important;
-            right: 5px !important;
-            bottom: 5px !important;
-            background-color: #1a5fb4;
-        }
-        
-        /* 模块操作按钮 */
-        .card-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .card-action-btn {
-            background: none;
-            border: none;
-            color: #718096;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .card-action-btn:hover {
-            background-color: #e2e8f0;
-            color: #4a5568;
-        }
-        
-        /* 文件对比相关样式 */
-        .file-comparison-info {
-            background-color: #f0f9ff;
-            border-left: 4px solid #1a5fb4;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .comparison-stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .comparison-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px 15px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            min-width: 120px;
-        }
-        
-        .comparison-stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .comparison-stat-label {
-            font-size: 12px;
-            color: #718096;
-            text-align: center;
-        }
-        
-        .comparison-stat-value.added {
-            color: #10b981;
-        }
-        
-        .comparison-stat-value.removed {
-            color: #ef4444;
-        }
-        
-        .comparison-stat-value.changed {
-            color: #f59e0b;
-        }
-        
-        .comparison-stat-value.unchanged {
-            color: #6b7280;
-        }
-        
-        .comparison-diff-row {
-            background-color: #fef3c7 !important;
-        }
-        
-        .diff-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        
-        .diff-added {
-            background-color: #10b981;
-        }
-        
-        .diff-removed {
-            background-color: #ef4444;
-        }
-        
-        .diff-changed {
-            background-color: #f59e0b;
-        }
-        
-        .diff-unchanged {
-            background-color: #6b7280;
-        }
-        
-        .comparison-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .comparison-filter-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e0;
-            background-color: white;
-            color: #4a5568;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        
-        .comparison-filter-btn.active {
-            background-color: #1a5fb4;
-            color: white;
-            border-color: #1a5fb4;
-        }
-        
-        .comparison-filter-btn:hover {
-            background-color: #f7fafc;
-        }
-        
-        .comparison-filter-btn.active:hover {
-            background-color: #164d9c;
-        }
-        
-        /* 新增：简洁的多选框样式，更接近图片中的下拉框外观 */
-        .multi-select-container {
-            position: relative;
-        }
-        
-        .multi-select-header {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e0;
-            background-color: white;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 44px;
-        }
-        
-        .multi-select-header:hover {
-            border-color: #1a5fb4;
-        }
-        
-        .multi-select-header.open {
-            border-color: #1a5fb4;
-            box-shadow: 0 0 0 3px rgba(26, 95, 180, 0.1);
-        }
-        
-        .multi-select-dropdown {
+        .chart-download-btn {
             position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border: 1px solid #cbd5e0;
-            border-radius: 8px;
-            margin-top: 5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .multi-select-dropdown.open {
-            display: block;
-        }
-        
-        .multi-select-option {
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f1f1;
-        }
-        
-        .multi-select-option:hover {
-            background-color: #f8fafc;
-        }
-        
-        .multi-select-option:last-child {
-            border-bottom: none;
-        }
-        
-        .multi-select-option input {
-            margin-right: 10px;
-        }
-        
-        .multi-select-option label {
-            cursor: pointer;
-            flex: 1;
-            font-size: 14px;
-        }
-        
-        .select-all-option {
-            background-color: #f8fafc;
-            border-bottom: 2px solid #cbd5e0;
-        }
-        
-        .multi-select-selected {
-            font-size: 13px;
-            margin-top: 5px;
-            color: #4a5568;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .filter-count {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-color: #1a5fb4;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 20px;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(255,255,255,0.85);
+            border: none;
+            border-radius: 30px;
+            padding: 4px 14px;
             font-size: 12px;
-            margin-left: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
         }
-        
-        /* 按钮组样式 - 更像图片中的按钮 */
-        .button-group {
+        .chart-download-btn:hover {
+            background: rgba(0,0,0,0.7);
+            color: white;
+        }
+        .table-responsive-sm {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .insight-note {
+            background: #eef2ff;
+            border-left: 5px solid #3b82f6;
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin: 16px 0;
+        }
+        footer {
+            font-size: 12px;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 30px;
+        }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .mode-switch {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 15px;
         }
-        
-        .button-group .file-upload-btn {
-            margin-top: 0;
+        .btn-mode {
+            border-radius: 30px;
+            padding: 5px 15px;
+            font-size: 13px;
         }
-        
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .controls {
-                grid-template-columns: 1fr;
-            }
-            
-            .control-group {
-                width: 100%;
-            }
-            
-            .dashboard-controls {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .dashboard-buttons {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-            
-            .comparison-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .comparison-stat {
-                width: 100%;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
+        .path-text {
+            font-family: monospace;
+            font-size: 12px;
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #1e40af;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="header-left">
-                    <h1><i class="fas fa-chart-line"></i> 电子目视化数据维护报表系统</h1>
-                    <p>数据驱动监督激励 • 实时追踪工作进度 • 可视化展示完成情况 • 双文件对比分析</p>
-                </div>
-                <div class="header-right">
-                    <div class="stats-badge">
-                        <i class="fas fa-calendar-alt"></i> 数据更新: <span id="updateDate">-</span>
-                    </div>
-                    <div class="stats-badge">
-                        <i class="fas fa-database"></i> 记录数: <span id="totalRecords">0</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-        
-        <!-- 简化的控制区域，更接近图片中的布局 -->
-        <div class="controls">
-            <!-- 主数据文件 -->
-            <div class="control-group">
-                <label for="excelUploadA"><i class="fas fa-file-excel"></i> <span class="file-tag file-tag-a">A</span> 主数据文件</label>
-                <div class="file-upload-wrapper">
-                    <button class="file-upload-btn" id="excelUploadBtnA">
-                        <i class="fas fa-upload"></i> 选择A文件
-                    </button>
-                    <input type="file" id="excelUploadA" accept=".xlsx,.xls,.csv">
-                </div>
-                <div class="file-name" id="fileNameA">未选择文件</div>
-            </div>
-            
-            <!-- 对比数据文件 -->
-            <div class="control-group">
-                <label for="excelUploadB"><i class="fas fa-file-excel"></i> <span class="file-tag file-tag-b">B</span> 对比数据文件</label>
-                <div class="file-upload-wrapper">
-                    <button class="file-upload-btn" id="excelUploadBtnB">
-                        <i class="fas fa-upload"></i> 选择B文件
-                    </button>
-                    <input type="file" id="excelUploadB" accept=".xlsx,.xls,.csv">
-                </div>
-                <div class="file-name" id="fileNameB">未选择文件</div>
-            </div>
-            
-            <!-- 数据源选择 -->
-            <div class="control-group">
-                <label for="dataSourceSelect"><i class="fas fa-database"></i> 数据源选择</label>
-                <select id="dataSourceSelect">
-                    <option value="fileA">使用A文件数据</option>
-                    <option value="fileB">使用B文件数据</option>
-                    <option value="comparison">显示对比差异</option>
-                </select>
-            </div>
-            
-            <!-- 年份筛选 - 多选框 -->
-            <div class="control-group">
-                <label for="yearSelect"><i class="fas fa-filter"></i> 选择年份筛选</label>
-                <div class="multi-select-container" id="yearMultiSelect">
-                    <div class="multi-select-header">
-                        <span>选择年份</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="multi-select-dropdown" id="yearDropdown">
-                        <!-- 年份选项将通过JavaScript动态生成 -->
-                    </div>
-                    <div class="multi-select-selected" id="yearSelected">全部年份</div>
-                </div>
-            </div>
-            
-            <!-- 工位筛选 - 多选框 -->
-            <div class="control-group">
-                <label for="stationSelect"><i class="fas fa-industry"></i> 选择工位筛选</label>
-                <div class="multi-select-container" id="stationMultiSelect">
-                    <div class="multi-select-header">
-                        <span>选择工位</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="multi-select-dropdown" id="stationDropdown">
-                        <!-- 工位选项将通过JavaScript动态生成 -->
-                    </div>
-                    <div class="multi-select-selected" id="stationSelected">全部工位</div>
-                </div>
-            </div>
-            
-            <!-- 按钮组 -->
-            <div class="control-group">
-                <label style="visibility: hidden;">操作按钮</label>
-                <div class="button-group">
-                    <button id="resetFilters" class="file-upload-btn" style="background-color: #718096;">
-                        <i class="fas fa-redo"></i> 重置筛选
-                    </button>
-                    <button id="runComparison" class="file-upload-btn" style="background-color: #f59e0b;">
-                        <i class="fas fa-exchange-alt"></i> 执行对比分析
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <div class="dashboard-controls">
+<div class="container py-4">
+    <!-- 固定顶部标题栏 -->
+    <div class="sticky-title">
+        <div class="title-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
                 <div>
-                    <h3 style="color: #4a5568; font-weight: 600;">数据仪表板</h3>
-                    <p style="color: #718096; font-size: 14px; margin-top: 5px;">拖动和调整各模块位置与大小，自定义您的报表视图</p>
-                    <div id="dataSourceInfo" style="margin-top: 5px; font-size: 14px; color: #4a5568;"></div>
+                    <h2 class="mb-1">📊 新品首台车停线分析平台</h2>
+                    <p class="text-secondary mb-0">多维统计表格 + 可视化增强 | 支持图表下载、显示模式切换、月度趋势</p>
                 </div>
-                <div class="dashboard-buttons">
-                    <button id="saveLayout" class="btn btn-primary">
-                        <i class="fas fa-save"></i> 保存布局
-                    </button>
-                    <button id="resetLayout" class="btn">
-                        <i class="fas fa-redo"></i> 重置布局
-                    </button>
-                    <button id="toggleEdit" class="btn">
-                        <i class="fas fa-edit"></i> 编辑模式
-                    </button>
+                <div class="mt-2 mt-sm-0">
+                    <button id="downloadTemplateBtn" class="btn btn-outline-info btn-sm-custom me-2">📥 下载Excel模板</button>
+                    <label class="btn btn-primary btn-sm-custom">
+                        📂 导入Excel数据 <input type="file" id="uploadExcel" accept=".xlsx, .xls, .csv" style="display:none">
+                    </label>
+                    <button id="exportWordBtn" class="btn btn-outline-dark btn-sm-custom ms-2">📄 导出Word报告</button>
                 </div>
             </div>
-            
-            <!-- 数据上传提示 -->
-            <div id="uploadHint">
-                <div class="empty-state">
-                    <i class="fas fa-file-excel"></i>
-                    <h3>欢迎使用电子目视化数据维护报表系统 - 双文件对比版</h3>
-                    <p>请先上传Excel数据文件以开始分析。系统支持.xlsx、.xls和.csv格式文件。</p>
-                    <p style="margin-top: 15px;">文件应包含以下列：序号、工位号、工位名称、模块号、创建时间、修改时、修改人</p>
-                    <div style="margin-top: 20px; padding: 15px; background-color: #f0f9ff; border-radius: 8px; max-width: 600px;">
-                        <h4 style="color: #1a5fb4; margin-bottom: 10px;"><i class="fas fa-info-circle"></i> 使用说明</h4>
-                        <ul style="text-align: left; line-height: 1.6;">
-                            <li><strong>A文件</strong>：主数据文件，用于可视化展示</li>
-                            <li><strong>B文件</strong>：对比数据文件，用于与A文件进行差异分析</li>
-                            <li>上传两个文件后，可选择显示A文件、B文件或对比结果</li>
-                            <li>点击"执行对比分析"按钮可查看两个文件的差异</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- GridStack 容器 -->
-            <div class="grid-stack" id="dashboardGrid"></div>
-        </div>
-        
-        <div class="footer">
-            <p>© 2026 电子目视化数据维护报表系统 - 双文件对比版 | 本系统用于科室内部工作监督与激励 | 数据更新时间: <span id="updateTime">-</span></p>
-            <p style="font-size: 12px; margin-top: 5px;">注意：所有数据处理均在本地浏览器完成，数据不会上传到任何服务器</p>
         </div>
     </div>
 
-    <!-- 引入jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!-- 引入GridStack.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.1.0/gridstack-all.js"></script>
-    
-    <script>
-        // 全局变量
-        let allData = [];
-        let allDataA = [];  // A文件数据
-        let allDataB = [];  // B文件数据
-        let allComparisonData = []; // 对比数据
-        let filteredData = [];
-        let modificationChart, stationChart;
-        let currentFileName = '';
-        let currentFileNameA = '';
-        let currentFileNameB = '';
-        let grid = null;
-        let isEditMode = true;
-        let currentDataSource = 'fileA'; // 当前数据源: fileA, fileB, comparison
-        
-        // 多选框数据
-        let selectedYears = ['all']; // 选中的年份，默认全选
-        let selectedStations = ['all']; // 选中的工位，默认全选
-        
-        // 首先尝试加载Chart.js，如果失败则使用备用方案
-        function loadChartLibrary() {
-            // 检查是否已经加载了Chart.js
-            if (typeof Chart !== 'undefined') {
-                console.log('Chart.js已加载');
-                return Promise.resolve();
-            }
-            
-            return new Promise((resolve, reject) => {
-                // 尝试从CDN加载
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js';
-                script.integrity = 'sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==';
-                script.crossOrigin = 'anonymous';
-                
-                script.onload = () => {
-                    console.log('Chart.js从CDN加载成功');
-                    resolve();
-                };
-                
-                script.onerror = () => {
-                    console.warn('Chart.js CDN加载失败，使用备用方案');
-                    // 如果CDN加载失败，使用内置的简单图表实现
-                    createSimpleChartLibrary();
-                    resolve();
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
-        
-        // 创建简单的图表库（备用方案）
-        function createSimpleChartLibrary() {
-            console.log('使用备用图表库');
-            
-            // 创建简单的Chart构造函数
-            window.Chart = function(ctx, config) {
-                this.ctx = ctx;
-                this.config = config;
-                this.chartType = config.type;
-                
-                // 绘制图表
-                this.draw = function() {
-                    const width = ctx.canvas.width;
-                    const height = ctx.canvas.height;
-                    
-                    // 清除画布
-                    ctx.clearRect(0, 0, width, height);
-                    
-                    if (this.chartType === 'pie') {
-                        drawPieChart(ctx, width, height, this.config.data);
-                    } else if (this.chartType === 'bar') {
-                        drawBarChart(ctx, width, height, this.config.data);
-                    }
-                };
-                
-                // 初始化时绘制
-                this.draw();
-                
-                // 添加销毁方法
-                this.destroy = function() {
-                    // 简单实现，清除画布
-                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                };
-            };
-            
-            // 绘制饼图
-            function drawPieChart(ctx, width, height, data) {
-                if (!data || !data.datasets || data.datasets.length === 0) return;
-                
-                const dataset = data.datasets[0];
-                const values = dataset.data;
-                const colors = dataset.backgroundColor || ['#1a5fb4', '#e2e8f0', '#10b981', '#f59e0b'];
-                
-                const total = values.reduce((sum, value) => sum + value, 0);
-                if (total === 0) return;
-                
-                const centerX = width / 2;
-                const centerY = height / 2;
-                const radius = Math.min(width, height) / 2 - 20;
-                
-                let startAngle = 0;
-                
-                // 绘制扇形
-                for (let i = 0; i < values.length; i++) {
-                    const sliceAngle = (values[i] / total) * 2 * Math.PI;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-                    ctx.closePath();
-                    
-                    ctx.fillStyle = colors[i] || '#cccccc';
-                    ctx.fill();
-                    
-                    startAngle += sliceAngle;
-                }
-                
-                // 添加文字标签
-                startAngle = 0;
-                ctx.fillStyle = '#333';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                for (let i = 0; i < values.length; i++) {
-                    const sliceAngle = (values[i] / total) * 2 * Math.PI;
-                    const midAngle = startAngle + sliceAngle / 2;
-                    
-                    // 计算标签位置
-                    const labelRadius = radius * 0.7;
-                    const labelX = centerX + Math.cos(midAngle) * labelRadius;
-                    const labelY = centerY + Math.sin(midAngle) * labelRadius;
-                    
-                    const percentage = Math.round((values[i] / total) * 100);
-                    const label = data.labels ? `${data.labels[i]}: ${percentage}%` : `${percentage}%`;
-                    
-                    ctx.fillText(label, labelX, labelY);
-                    
-                    startAngle += sliceAngle;
-                }
-            }
-            
-            // 绘制条形图 - 改进版本，支持分组条形图
-            function drawBarChart(ctx, width, height, data) {
-                if (!data || !data.datasets || data.datasets.length === 0) return;
-                
-                const labels = data.labels || [];
-                const datasets = data.datasets;
-                
-                const margin = { top: 30, right: 20, bottom: 50, left: 60 };
-                const chartWidth = width - margin.left - margin.right;
-                const chartHeight = height - margin.top - margin.bottom;
-                
-                // 找出最大值
-                let maxValue = 0;
-                datasets.forEach(dataset => {
-                    const datasetMax = Math.max(...dataset.data);
-                    if (datasetMax > maxValue) maxValue = datasetMax;
-                });
-                
-                // 绘制坐标轴
-                ctx.beginPath();
-                ctx.moveTo(margin.left, margin.top);
-                ctx.lineTo(margin.left, margin.top + chartHeight);
-                ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // 绘制Y轴刻度
-                ctx.fillStyle = '#666';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'middle';
-                
-                const yTicks = 5;
-                for (let i = 0; i <= yTicks; i++) {
-                    const value = (maxValue / yTicks) * i;
-                    const y = margin.top + chartHeight - (value / maxValue) * chartHeight;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(margin.left - 5, y);
-                    ctx.lineTo(margin.left, y);
-                    ctx.strokeStyle = '#ccc';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    
-                    ctx.fillText(Math.round(value).toString(), margin.left - 10, y);
-                }
-                
-                // 绘制条形 - 支持分组
-                const barGroupWidth = chartWidth / labels.length;
-                const barWidth = barGroupWidth / (datasets.length + 1);
-                
-                datasets.forEach((dataset, datasetIndex) => {
-                    const color = dataset.backgroundColor || (datasetIndex === 0 ? '#1a5fb4' : '#10b981');
-                    
-                    dataset.data.forEach((value, index) => {
-                        const barHeight = (value / maxValue) * chartHeight;
-                        const x = margin.left + index * barGroupWidth + datasetIndex * barWidth;
-                        const y = margin.top + chartHeight - barHeight;
-                        
-                        ctx.fillStyle = color;
-                        ctx.fillRect(x, y, barWidth, barHeight);
-                        
-                        // 添加数值标签
-                        ctx.fillStyle = '#333';
-                        ctx.font = '12px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        ctx.fillText(value, x + barWidth / 2, y - 5);
-                    });
-                });
-                
-                // 绘制X轴标签
-                ctx.fillStyle = '#666';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'top';
-                
-                labels.forEach((label, index) => {
-                    const x = margin.left + index * barGroupWidth + barGroupWidth / 2;
-                    const y = margin.top + chartHeight + 10;
-                    
-                    // 如果标签太长，换行显示
-                    if (label.length > 10) {
-                        const parts = [];
-                        for (let i = 0; i < label.length; i += 10) {
-                            parts.push(label.substring(i, i + 10));
-                        }
-                        parts.forEach((part, i) => {
-                            ctx.fillText(part, x, y + i * 15);
-                        });
-                    } else {
-                        ctx.fillText(label, x, y);
-                    }
-                });
-                
-                // 添加图例
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                
-                datasets.forEach((dataset, index) => {
-                    const legendX = margin.left + 10;
-                    const legendY = margin.top - 20 + index * 20;
-                    
-                    ctx.fillStyle = dataset.backgroundColor || (index === 0 ? '#1a5fb4' : '#10b981');
-                    ctx.fillRect(legendX, legendY - 8, 15, 15);
-                    
-                    ctx.fillStyle = '#333';
-                    ctx.fillText(dataset.label || `数据集 ${index + 1}`, legendX + 20, legendY);
-                });
-            }
-            
-            console.log('备用图表库创建完成');
-        }
-        
-        // 加载SheetJS库
-        function loadSheetJS() {
-            return new Promise((resolve, reject) => {
-                // 检查是否已经加载了XLSX
-                if (typeof XLSX !== 'undefined') {
-                    console.log('SheetJS已加载');
-                    resolve();
-                    return;
-                }
-                
-                // 尝试从CDN加载
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-                
-                script.onload = () => {
-                    console.log('SheetJS从CDN加载成功');
-                    resolve();
-                };
-                
-                script.onerror = () => {
-                    console.error('SheetJS CDN加载失败');
-                    // 尝试备用CDN
-                    const backupScript = document.createElement('script');
-                    backupScript.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
-                    
-                    backupScript.onload = () => {
-                        console.log('SheetJS从备用CDN加载成功');
-                        resolve();
-                    };
-                    
-                    backupScript.onerror = () => {
-                        alert('无法加载Excel解析库，请检查网络连接或刷新页面重试。');
-                        reject(new Error('SheetJS加载失败'));
-                    };
-                    
-                    document.head.appendChild(backupScript);
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
-        
-        // 初始化应用
-        async function initializeApp() {
+    <!-- 文件状态栏 + 路径复制 -->
+    <div class="auto-import-bar">
+        <div style="font-weight: 600;">📁 当前加载文件：</div>
+        <div id="currentFileName" class="file-name-display">未加载</div>
+        <button id="quickImportBtn" class="btn btn-outline-secondary btn-sm">📂 从默认路径选择文件</button>
+        <button id="clearCacheBtn" class="btn btn-outline-danger btn-sm">🗑️ 清除缓存</button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <span class="path-text" id="defaultPathSpan">\\dflzm.com\efs\制造技术部\（5）商用车工艺科\4、工艺员文件夹\陈悦\首台OEE</span>
+            <button id="copyPathBtn" class="copy-btn" title="复制默认路径">📋 复制路径</button>
+        </div>
+        <span id="cacheStatus" class="text-muted small ms-2"></span>
+    </div>
+
+    <!-- 数据加载状态提示 -->
+    <div id="dataStatus" class="alert alert-info py-2 px-3 mb-4 rounded-3" style="background: #eef2ff; border: none;">未加载数据，请导入Excel文件</div>
+
+    <!-- 美化筛选区：独立卡片 -->
+    <div class="filter-card">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">⚡ 动力类型</label>
+                    <select id="filterPower" class="form-select custom-select" multiple size="1">
+                        <option value="all" selected>全部</option>
+                        <option value="电车">电车</option>
+                        <option value="燃油">燃油</option>
+                        <option value="氢燃料">氢燃料</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">🏭 生产线</label>
+                    <select id="filterLine" class="form-select custom-select" multiple size="1">
+                        <option value="all" selected>全部</option>
+                        <option value="主线一">主线一</option>
+                        <option value="主线二">主线二</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">📦 平台</label>
+                    <select id="filterPlatform" class="form-select custom-select" multiple size="1">
+                        <option value="all" selected>全部</option>
+                        <option value="牵引">牵引</option>
+                        <option value="自卸">自卸</option>
+                        <option value="载货">载货</option>
+                        <option value="专用">专用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">🔧 工位（关键字）</label>
+                    <input type="text" id="filterStation" class="form-control custom-select" placeholder="如：电池包吊装">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">🎯 主因</label>
+                    <select id="filterMainCause" class="form-select custom-select" multiple size="1">
+                        <option value="all" selected>全部</option>
+                        <option value="超节拍排产">超节拍排产</option>
+                        <option value="作业人员不足">作业人员不足</option>
+                        <option value="设计问题">设计问题</option>
+                        <option value="工艺问题">工艺问题</option>
+                        <option value="首台连排">首台连排</option>
+                        <option value="首台验证">首台验证</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button id="resetFilter" class="btn btn-outline-secondary btn-sm w-100">重置筛选</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键指标卡片 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="card card-custom text-center p-3"><div class="stat-number" id="totalTime">-</div><div class="stat-label">总停线时长(分钟)</div></div></div>
+        <div class="col-md-3"><div class="card card-custom text-center p-3"><div class="stat-number" id="totalFreq">-</div><div class="stat-label">停线总频次(次)</div></div></div>
+        <div class="col-md-3"><div class="card card-custom text-center p-3"><div class="stat-number" id="modelCount">-</div><div class="stat-label">涉及车型代码数</div></div></div>
+        <div class="col-md-3"><div class="card card-custom text-center p-3"><div class="stat-number" id="avgPerModel">-</div><div class="stat-label">平均每车型停线(min)</div></div></div>
+    </div>
+
+    <!-- 显示模式切换 + 图表区 -->
+    <div class="card card-custom">
+        <div class="card-header-custom">
+            <span>📈 可视化分析</span>
+            <div class="mode-switch">
+                <button id="modeHover" class="btn btn-outline-secondary btn-mode active">🖱️ 悬停显示</button>
+                <button id="modeDirect" class="btn btn-outline-secondary btn-mode">🔢 直接显示数值</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- 动力类型 -->
+            <div class="section-title">⚡ 动力类型分析</div>
+            <div class="chart-row">
+                <div class="chart-half"><div id="chartPowerDist" class="chart-container"></div><button class="chart-download-btn" data-chart-id="chartPowerDist">📸 下载图表</button></div>
+                <div class="chart-half"><div id="chartPowerAvg" class="chart-container"></div><button class="chart-download-btn" data-chart-id="chartPowerAvg">📸 下载图表</button></div>
+            </div>
+            <!-- 平台分析 -->
+            <div class="section-title">🏭 平台分析</div>
+            <div class="chart-row">
+                <div class="chart-half"><div id="chartPlatformDist" class="chart-container"></div><button class="chart-download-btn" data-chart-id="chartPlatformDist">📸 下载图表</button></div>
+                <div class="chart-half"><div id="chartPlatformAvg" class="chart-container"></div><button class="chart-download-btn" data-chart-id="chartPlatformAvg">📸 下载图表</button></div>
+            </div>
+            <!-- 主因分析（新增） -->
+            <div class="section-title">🎯 停线主因分析</div>
+            <div style="position: relative;"><div id="chartMainCause" class="chart-container" style="height: 360px;"></div><button class="chart-download-btn" data-chart-id="chartMainCause">📸 下载图表</button></div>
+            <!-- 生产线对比 -->
+            <div class="section-title">🏭 生产线对比</div>
+            <div style="position: relative;"><div id="chartLine" class="chart-container" style="height: 320px;"></div><button class="chart-download-btn" data-chart-id="chartLine" style="position: absolute; top: 10px; right: 10px;">📸 下载图表</button></div>
+            <!-- TOP10工位 -->
+            <div class="section-title">🔧 TOP10 停线工位</div>
+            <div style="position: relative;"><div id="chartStation" class="chart-container" style="height: 380px;"></div><button class="chart-download-btn" data-chart-id="chartStation" style="position: absolute; top: 10px; right: 10px;">📸 下载图表</button></div>
+            <!-- 月度趋势分析 -->
+            <div class="section-title">📅 月度趋势分析</div>
+            <div style="position: relative;"><div id="chartTrend" class="chart-container" style="height: 380px;"></div><button class="chart-download-btn" data-chart-id="chartTrend" style="position: absolute; top: 10px; right: 10px;">📸 下载图表</button></div>
+        </div>
+    </div>
+
+    <!-- 多维度统计表格 -->
+    <div class="card card-custom">
+        <div class="card-header-custom">📋 多维度统计表格</div>
+        <div class="card-body">
+            <h5>1. 按动力类型统计</h5>
+            <div class="table-responsive"><table class="table table-bordered table-sm" id="tablePower"><thead class="table-light"><th>动力类型</th><th>总停线(min)</th><th>占比</th><th>停线次数</th><th>车型代码数</th><th>平均每车型停线(min)</th></thead><tbody><td colspan="6">暂无数据</tbody></table></div>
+            <h5 class="mt-4">2. 按平台统计</h5>
+            <div class="table-responsive"><table class="table table-bordered table-sm" id="tablePlatform"><thead class="table-light"> <th>平台</th><th>总停线(min)</th><th>占比</th><th>停线次数</th><th>车型代码数</th><th>平均每车型停线(min)</th> </thead><tbody><td colspan="6">暂无数据</tbody></table></div>
+            <h5 class="mt-4">3. 按生产线统计</h5>
+            <div class="table-responsive"><table class="table table-bordered table-sm" id="tableLine"><thead class="table-light"> <th>生产线</th><th>总停线(min)</th><th>占比</th><th>停线次数</th><th>车型代码数</th><th>平均每车型停线(min)</th> </thead><tbody><td colspan="6">暂无数据</tbody></table></div>
+            <h5 class="mt-4">4. 按停线主因统计</h5>
+            <div class="table-responsive"><table class="table table-bordered table-sm" id="tableMainCause"><thead class="table-light"> <th>主因</th><th>总停线(min)</th><th>占比</th><th>停线次数</th><th>车型代码数</th><th>平均每车型停线(min)</th> </thead><tbody><td colspan="6">暂无数据</tbody></table></div>
+            <h5 class="mt-4">5. TOP10 停线工位</h5>
+            <div class="table-responsive"><table class="table table-bordered table-sm" id="tableStation"><thead class="table-light"> <th>工位</th><th>总停线(min)</th><th>占比</th><th>停线次数</th><th>车型代码数</th><th>平均每车型停线(min)</th> </thead><tbody><td colspan="6">暂无数据</tbody></table></div>
+        </div>
+    </div>
+
+    <!-- 明细数据表格 -->
+    <div class="card card-custom">
+        <div class="card-header-custom">📋 停线明细数据 (当前筛选结果)</div>
+        <div class="card-body p-0">
+            <div class="table-responsive-sm" style="max-height: 400px;">
+                <table class="table table-sm table-bordered mb-0" id="detailTable">
+                    <thead class="table-light"> <th>停线日期</th><th>生产线</th><th>工位</th><th>停线时间(min)</th><th>车型代码</th><th>动力类型</th><th>平台</th><th>主因</th><th>停线原因简述</th> </thead>
+                    <tbody id="detailTbody"><td colspan="9" class="text-center">暂无数据</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-custom mt-3">
+        <div class="card-header-custom">📌 前位清单 & 整改建议</div>
+        <div class="card-body" id="insightArea"><p class="text-muted">加载数据后自动生成</p></div>
+    </div>
+    <footer>分析工具支持Excel导入、多维度统计表格、图表下载、显示模式切换及月度趋势分析 | 自动加载上次使用的文件</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let rawData = [];
+    let filteredData = [];
+    let currentChartMode = 'hover';
+    let charts = {};
+
+    // 字段映射（增加主因）
+    const fieldMapping = {
+        "停线日期": "date", "日期": "date",
+        "生产线": "line", "产线": "line",
+        "停线工位": "station", "工位": "station",
+        "停线时间": "duration", "时长": "duration", "时间(min)": "duration",
+        "车型代码": "modelCode", "车型": "modelCode",
+        "动力类型": "powerType", "动力": "powerType",
+        "平台": "platform",
+        "停线原因": "reason", "原因": "reason",
+        "主因": "mainCause"
+    };
+
+    const defaultPath = "\\\\dflzm.com\\efs\\制造技术部\\（5）商用车工艺科\\4、工艺员文件夹\\陈悦\\首台OEE";
+
+    // 主因自动归类函数
+    function classifyMainCause(reasonText) {
+        if (!reasonText) return "其他";
+        const text = reasonText.toLowerCase();
+        // 关键词匹配
+        if (text.includes('超节拍') || text.includes('节拍') || text.includes('来不及') || text.includes('作业不及') || text.includes('吊装不及')) return "超节拍排产";
+        if (text.includes('人员不足') || text.includes('缺人') || text.includes('无人') || text.includes('顶岗')) return "作业人员不足";
+        if (text.includes('设计') || text.includes('孔偏') || text.includes('干涉') || text.includes('空间小') || text.includes('无空间') || text.includes('支架') || text.includes('孔位')) return "设计问题";
+        if (text.includes('工艺') || text.includes('指导') || text.includes('管夹') || text.includes('新增') || text.includes('标准') || text.includes('作业指导')) return "工艺问题";
+        if (text.includes('首台') && (text.includes('连排') || text.includes('批量'))) return "首台连排";
+        if (text.includes('首台') && (text.includes('验证') || text.includes('试制') || text.includes('新品'))) return "首台验证";
+        // 默认归类为其他
+        return "其他";
+    }
+
+    // 复制路径功能
+    document.getElementById('copyPathBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(defaultPath).then(() => {
+            alert("默认路径已复制到剪贴板");
+        }).catch(() => {
+            alert("复制失败，请手动复制");
+        });
+    });
+
+    // ==================== 缓存功能 ====================
+    function saveDataToCache(data, fileName) {
+        try {
+            const cacheData = { rawData: data, fileName: fileName, timestamp: new Date().toISOString() };
+            localStorage.setItem('stoppage_analysis_data', JSON.stringify(cacheData));
+            document.getElementById('cacheStatus').innerHTML = `✅ 已缓存 (${new Date().toLocaleTimeString()})`;
+            document.getElementById('currentFileName').innerText = fileName || "未知文件";
+        } catch(e) { console.warn('缓存失败', e); }
+    }
+
+    function loadDataFromCache() {
+        const cached = localStorage.getItem('stoppage_analysis_data');
+        if(cached) {
             try {
-                // 加载必要的库
-                await Promise.all([loadChartLibrary(), loadSheetJS()]);
-                
-                // 设置当前时间
-                updateCurrentTime();
-                
-                // 设置事件监听器
-                document.getElementById('excelUploadA').addEventListener('change', (e) => handleFileUpload(e, 'A'));
-                document.getElementById('excelUploadBtnA').addEventListener('click', function() {
-                    document.getElementById('excelUploadA').click();
-                });
-                document.getElementById('excelUploadB').addEventListener('change', (e) => handleFileUpload(e, 'B'));
-                document.getElementById('excelUploadBtnB').addEventListener('click', function() {
-                    document.getElementById('excelUploadB').click();
-                });
-                document.getElementById('dataSourceSelect').addEventListener('change', changeDataSource);
-                document.getElementById('resetFilters').addEventListener('click', resetFilters);
-                document.getElementById('runComparison').addEventListener('click', runComparison);
-                document.getElementById('saveLayout').addEventListener('click', saveDashboardLayout);
-                document.getElementById('resetLayout').addEventListener('click', resetDashboardLayout);
-                document.getElementById('toggleEdit').addEventListener('click', toggleEditMode);
-                
-                // 初始化多选框事件
-                initMultiSelect();
-                
-                // 初始化GridStack
-                initDashboard();
-                
-                // 初始显示上传提示
-                showUploadHint();
-                
-                console.log('应用程序初始化完成');
-            } catch (error) {
-                console.error('初始化应用时出错:', error);
-                alert('应用程序初始化失败，请刷新页面重试。');
-            }
-        }
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', initializeApp);
-        
-        // 初始化多选框
-        function initMultiSelect() {
-            // 年份多选框
-            const yearSelect = document.getElementById('yearMultiSelect');
-            const yearHeader = yearSelect.querySelector('.multi-select-header');
-            const yearDropdown = document.getElementById('yearDropdown');
-            
-            yearHeader.addEventListener('click', function() {
-                yearDropdown.classList.toggle('open');
-                yearHeader.classList.toggle('open');
-            });
-            
-            // 工位多选框
-            const stationSelect = document.getElementById('stationMultiSelect');
-            const stationHeader = stationSelect.querySelector('.multi-select-header');
-            const stationDropdown = document.getElementById('stationDropdown');
-            
-            stationHeader.addEventListener('click', function() {
-                stationDropdown.classList.toggle('open');
-                stationHeader.classList.toggle('open');
-            });
-            
-            // 点击页面其他地方关闭下拉框
-            document.addEventListener('click', function(event) {
-                if (!yearSelect.contains(event.target)) {
-                    yearDropdown.classList.remove('open');
-                    yearHeader.classList.remove('open');
-                }
-                
-                if (!stationSelect.contains(event.target)) {
-                    stationDropdown.classList.remove('open');
-                    stationHeader.classList.remove('open');
-                }
-            });
-        }
-        
-        // 更新当前时间
-        function updateCurrentTime() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('zh-CN');
-            const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-            
-            document.getElementById('updateDate').textContent = dateStr;
-            document.getElementById('updateTime').textContent = `${dateStr} ${timeStr}`;
-        }
-        
-        // 更新数据源信息
-        function updateDataSourceInfo() {
-            const dataSourceInfo = document.getElementById('dataSourceInfo');
-            
-            if (currentDataSource === 'fileA') {
-                dataSourceInfo.innerHTML = `<i class="fas fa-file"></i> 当前数据源: <strong>${currentFileNameA || 'A文件'}</strong> (${allDataA.length}条记录)`;
-            } else if (currentDataSource === 'fileB') {
-                dataSourceInfo.innerHTML = `<i class="fas fa-file"></i> 当前数据源: <strong>${currentFileNameB || 'B文件'}</strong> (${allDataB.length}条记录)`;
-            } else if (currentDataSource === 'comparison') {
-                dataSourceInfo.innerHTML = `<i class="fas fa-exchange-alt"></i> 当前数据源: <strong>文件对比模式</strong> (${allComparisonData.length}条对比记录)`;
-            }
-        }
-        
-        // 显示上传提示
-        function showUploadHint() {
-            document.getElementById('uploadHint').style.display = 'block';
-            document.getElementById('dashboardGrid').style.display = 'none';
-            document.getElementById('dataSourceInfo').innerHTML = '';
-        }
-        
-        // 隐藏上传提示
-        function hideUploadHint() {
-            document.getElementById('uploadHint').style.display = 'none';
-            document.getElementById('dashboardGrid').style.display = 'block';
-        }
-        
-        // 初始化仪表板
-        function initDashboard() {
-            // 检查jQuery是否已加载
-            if (typeof jQuery === 'undefined') {
-                console.error('jQuery未加载，无法初始化GridStack');
-                alert('页面加载失败，请刷新页面重试。');
-                return;
-            }
-            
-            // 检查GridStack是否已加载
-            if (typeof GridStack === 'undefined') {
-                console.error('GridStack未加载');
-                alert('页面加载失败，请刷新页面重试。');
-                return;
-            }
-            
-            try {
-                grid = GridStack.init({
-                    cellHeight: 80,
-                    margin: 10,
-                    float: true,
-                    removable: false,
-                    removeTimeout: 100,
-                    acceptWidgets: false,
-                    disableOneColumnMode: true,
-                    alwaysShowResizeHandle: true,
-                    resizable: {
-                        handles: 'e, se, s, sw, w, n, ne, nw'
-                    }
-                });
-                
-                // 尝试加载保存的布局
-                loadDashboardLayout();
-            } catch (error) {
-                console.error('初始化GridStack时出错:', error);
-                alert('仪表板初始化失败，请刷新页面重试。');
-            }
-        }
-        
-        // 创建仪表板卡片
-        function createDashboard() {
-            // 清空现有内容
-            if (grid) {
-                grid.removeAll();
-            }
-            
-            // 根据当前数据源创建不同的卡片
-            if (currentDataSource === 'comparison') {
-                // 对比模式下显示对比专用卡片
-                createComparisonStatsCard();
-                createComparisonDetailsCard();
-                createComparisonChartCard();
-            } else {
-                // 普通模式下显示常规卡片
-                // 修改默认布局：交换位置
-                createModificationCard();
-                createStationCard(); // 放在第二位置（原排行榜位置）
-                createRankingCard(); // 放在第三位置（原工位统计位置）
-                createModuleCard();
-                createDataCard();
-            }
-            
-            // 确保卡片可见
-            if (grid) {
-                grid.movable('.card-header', true);
-                
-                // 如果不是编辑模式，禁用拖动
-                if (!isEditMode) {
-                    grid.disable();
-                }
-            }
-        }
-        
-        // 创建修改完成情况卡片
-        function createModificationCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '4');
-            widget.setAttribute('gs-h', '4');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '0');
-            widget.setAttribute('gs-min-w', '3');
-            widget.setAttribute('gs-min-h', '3');
-            widget.setAttribute('gs-max-w', '8');
-            widget.setAttribute('gs-max-h', '6');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-chart-pie"></i> 修改完成情况</h3>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderModificationChart()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="chart-container">
-                                <canvas id="modificationChart"></canvas>
-                                <div id="modificationChartPlaceholder" class="chart-placeholder" style="display: none;">
-                                    <i class="fas fa-chart-pie"></i>
-                                    <p>图表加载中...</p>
-                                </div>
-                            </div>
-                            <div class="legend">
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #1a5fb4;"></div>
-                                    <span>已完成修改</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #e2e8f0;"></div>
-                                    <span>未修改</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建工位统计卡片（放在原排行榜位置）
-        function createStationCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '8');
-            widget.setAttribute('gs-h', '4');
-            widget.setAttribute('gs-x', '4');
-            widget.setAttribute('gs-y', '0');
-            widget.setAttribute('gs-min-w', '5');
-            widget.setAttribute('gs-min-h', '3');
-            widget.setAttribute('gs-max-w', '12');
-            widget.setAttribute('gs-max-h', '6');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-cogs"></i> 各工位完成情况</h3>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderStationChart()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="chart-container">
-                                <canvas id="stationChart"></canvas>
-                                <div id="stationChartPlaceholder" class="chart-placeholder" style="display: none;">
-                                    <i class="fas fa-chart-bar"></i>
-                                    <p>图表加载中...</p>
-                                </div>
-                            </div>
-                            <div style="margin-top: 10px; font-size: 12px; color: #718096; padding: 0 5px;">
-                                <i class="fas fa-info-circle"></i> 按未完成数量从高到低排序
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建排行榜卡片（放在原工位统计位置）
-        function createRankingCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '6');
-            widget.setAttribute('gs-h', '5');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '4');
-            widget.setAttribute('gs-min-w', '4');
-            widget.setAttribute('gs-min-h', '4');
-            widget.setAttribute('gs-max-w', '10');
-            widget.setAttribute('gs-max-h', '8');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-medal"></i> 修改人完成数量排行榜</h3>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderRankingTable()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th width="60">排名</th>
-                                        <th>修改人</th>
-                                        <th>完成数量</th>
-                                        <th>占比</th>
-                                        <th width="150">进度条</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rankingTable">
-                                    <!-- 排行榜数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建模块分类统计卡片
-        function createModuleCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '6');
-            widget.setAttribute('gs-h', '5');
-            widget.setAttribute('gs-x', '6');
-            widget.setAttribute('gs-y', '4');
-            widget.setAttribute('gs-min-w', '4');
-            widget.setAttribute('gs-min-h', '4');
-            widget.setAttribute('gs-max-w', '10');
-            widget.setAttribute('gs-max-h', '8');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-project-diagram"></i> 模块号分类统计</h3>
-                            <span class="highlight">按"-"后前3位分类</span>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderModuleCategories()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content" id="moduleCategories">
-                            <!-- 模块分类将通过JavaScript动态生成 -->
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建详细数据卡片
-        function createDataCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '12');
-            widget.setAttribute('gs-h', '6');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '9');
-            widget.setAttribute('gs-min-w', '8');
-            widget.setAttribute('gs-min-h', '4');
-            widget.setAttribute('gs-max-w', '12');
-            widget.setAttribute('gs-max-h', '10');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-table"></i> 详细数据</h3>
-                            <div>
-                                <span class="highlight">当前显示: <span id="currentFilter">全部数据</span></span>
-                            </div>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderDataTable()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th width="80">序号</th>
-                                        <th width="100">工位号</th>
-                                        <th>工位名称</th>
-                                        <th>模块号</th>
-                                        <th width="160">创建时间</th>
-                                        <th width="100">修改状态</th>
-                                        <th width="120">修改人</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dataTable">
-                                    <!-- 数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建对比统计卡片
-        function createComparisonStatsCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '12');
-            widget.setAttribute('gs-h', '4');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '0');
-            widget.setAttribute('gs-min-w', '8');
-            widget.setAttribute('gs-min-h', '3');
-            widget.setAttribute('gs-max-w', '12');
-            widget.setAttribute('gs-max-h', '6');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-exchange-alt"></i> 文件对比统计</h3>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderComparisonStats()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="comparison-stats" id="comparisonStats">
-                                <!-- 对比统计将通过JavaScript动态生成 -->
-                            </div>
-                            <div style="margin-top: 15px; font-size: 14px; color: #4a5568;">
-                                <p><i class="fas fa-info-circle"></i> 对比说明：以A文件为基准，对比B文件的差异</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建对比详情卡片
-        function createComparisonDetailsCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '12');
-            widget.setAttribute('gs-h', '8');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '4');
-            widget.setAttribute('gs-min-w', '8');
-            widget.setAttribute('gs-min-h', '6');
-            widget.setAttribute('gs-max-w', '12');
-            widget.setAttribute('gs-max-h', '12');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-list"></i> 对比详情</h3>
-                            <div>
-                                <span class="highlight">差异类型筛选</span>
-                            </div>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderComparisonDetails()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="comparison-filters" id="comparisonFilters">
-                                <!-- 对比筛选按钮将通过JavaScript动态生成 -->
-                            </div>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th width="60">差异类型</th>
-                                        <th width="80">序号</th>
-                                        <th width="100">工位号</th>
-                                        <th>工位名称</th>
-                                        <th>模块号</th>
-                                        <th width="160">创建时间</th>
-                                        <th width="100">修改状态</th>
-                                        <th width="120">修改人</th>
-                                        <th width="80">A文件</th>
-                                        <th width="80">B文件</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="comparisonTable">
-                                    <!-- 对比数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 创建对比图表卡片
-        function createComparisonChartCard() {
-            const widget = document.createElement('div');
-            widget.className = 'grid-stack-item';
-            widget.setAttribute('gs-w', '12');
-            widget.setAttribute('gs-h', '6');
-            widget.setAttribute('gs-x', '0');
-            widget.setAttribute('gs-y', '12');
-            widget.setAttribute('gs-min-w', '8');
-            widget.setAttribute('gs-min-h', '5');
-            widget.setAttribute('gs-max-w', '12');
-            widget.setAttribute('gs-max-h', '8');
-            
-            widget.innerHTML = `
-                <div class="grid-stack-item-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-chart-bar"></i> 差异分布图</h3>
-                            <div class="card-actions">
-                                <button class="card-action-btn" title="刷新" onclick="renderComparisonChart()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="chart-container">
-                                <canvas id="comparisonChart"></canvas>
-                                <div id="comparisonChartPlaceholder" class="chart-placeholder" style="display: none;">
-                                    <i class="fas fa-chart-bar"></i>
-                                    <p>图表加载中...</p>
-                                </div>
-                            </div>
-                            <div class="legend" id="comparisonLegend">
-                                <!-- 图例将通过JavaScript动态生成 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (grid) {
-                grid.addWidget(widget);
-            }
-        }
-        
-        // 保存仪表板布局
-        function saveDashboardLayout() {
-            if (!grid) {
-                alert('仪表板未初始化，无法保存布局。');
-                return;
-            }
-            
-            try {
-                const layout = grid.save();
-                localStorage.setItem('dashboardLayout', JSON.stringify(layout));
-                alert('布局已保存到本地浏览器！');
-            } catch (error) {
-                console.error('保存布局时出错:', error);
-                alert('保存布局失败，请重试。');
-            }
-        }
-        
-        // 加载仪表板布局
-        function loadDashboardLayout() {
-            const savedLayout = localStorage.getItem('dashboardLayout');
-            if (savedLayout && grid) {
-                try {
-                    const layout = JSON.parse(savedLayout);
-                    grid.load(layout);
-                    console.log('仪表板布局已加载');
-                } catch (e) {
-                    console.error('加载布局失败:', e);
-                }
-            }
-        }
-        
-        // 重置仪表板布局
-        function resetDashboardLayout() {
-            if (confirm('确定要重置仪表板布局吗？所有自定义位置和大小将被重置。')) {
-                localStorage.removeItem('dashboardLayout');
-                createDashboard();
-                alert('布局已重置为默认设置！');
-            }
-        }
-        
-        // 切换编辑模式
-        function toggleEditMode() {
-            if (!grid) {
-                alert('仪表板未初始化，无法切换编辑模式。');
-                return;
-            }
-            
-            isEditMode = !isEditMode;
-            const btn = document.getElementById('toggleEdit');
-            
-            if (isEditMode) {
-                grid.enable();
-                btn.innerHTML = '<i class="fas fa-lock"></i> 锁定布局';
-                btn.classList.add('btn-primary');
-            } else {
-                grid.disable();
-                btn.innerHTML = '<i class="fas fa-edit"></i> 编辑模式';
-                btn.classList.remove('btn-primary');
-            }
-        }
-        
-        // 处理文件上传
-        function handleFileUpload(event, fileType) {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-            
-            // 显示文件名
-            if (fileType === 'A') {
-                currentFileNameA = file.name;
-                document.getElementById('fileNameA').textContent = currentFileNameA;
-            } else {
-                currentFileNameB = file.name;
-                document.getElementById('fileNameB').textContent = currentFileNameB;
-            }
-            
-            // 显示加载状态
-            const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-            const originalHtml = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<div class="loader"></div> 解析文件中...';
-            uploadBtn.disabled = true;
-            
-            // 根据文件类型解析
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-            
-            console.log(`开始解析${fileType}文件: ${file.name}, 类型: ${fileExtension}`);
-            
-            if (fileExtension === 'csv') {
-                parseCSVFile(file, fileType);
-            } else {
-                parseExcelFile(file, fileType);
-            }
-        }
-        
-        // 解析Excel文件
-        function parseExcelFile(file, fileType) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    console.log(`开始解析${fileType} Excel文件...`);
-                    
-                    // 检查XLSX库是否可用
-                    if (typeof XLSX === 'undefined') {
-                        throw new Error('XLSX库未加载，请刷新页面重试');
-                    }
-                    
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { 
-                        type: 'array',
-                        cellDates: true, // 解析日期
-                        cellStyles: false,
-                        sheetStubs: false
-                    });
-                    
-                    // 获取第一个工作表
-                    const firstSheetName = workbook.SheetNames[0];
-                    console.log('工作表名称:', firstSheetName);
-                    
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // 将工作表转换为JSON
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
-                    console.log('解析成功，数据行数:', jsonData.length);
-                    
-                    // 处理数据
-                    processExcelData(jsonData, fileType);
-                    
-                    // 恢复按钮状态
-                    const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                    uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                    uploadBtn.disabled = false;
-                    
-                } catch (error) {
-                    console.error(`解析${fileType} Excel文件时出错:`, error);
-                    
-                    // 尝试使用备用解析方法
-                    console.log('尝试使用备用解析方法...');
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        
-                        // 尝试不同的解析选项
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-                            header: 1,
-                            raw: false, // 将原始值转换为字符串
-                            defval: '' // 默认值为空字符串
-                        });
-                        
-                        console.log('备用解析成功，数据行数:', jsonData.length);
-                        processExcelData(jsonData, fileType);
-                        
-                        // 恢复按钮状态
-                        const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                        uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                        uploadBtn.disabled = false;
-                        
-                    } catch (backupError) {
-                        console.error('备用解析方法也失败:', backupError);
-                        
-                        // 显示详细错误信息
-                        let errorMessage = `解析${fileType}文件时出错：` + error.message;
-                        if (error.message.includes('Unexpected') || error.message.includes('undefined')) {
-                            errorMessage = '文件格式不正确或已损坏，请确保上传的是有效的Excel文件。';
-                        }
-                        
-                        alert(errorMessage);
-                        
-                        // 恢复按钮状态
-                        const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                        uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                        uploadBtn.disabled = false;
-                    }
-                }
-            };
-            
-            reader.onerror = function(error) {
-                console.error('读取文件时出错:', error);
-                alert('读取文件时出错：' + error.message);
-                
-                // 恢复按钮状态
-                const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                uploadBtn.disabled = false;
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-        
-        // 解析CSV文件
-        function parseCSVFile(file, fileType) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    console.log(`开始解析${fileType} CSV文件...`);
-                    
-                    const csvText = e.target.result;
-                    
-                    // 使用XLSX库解析CSV
-                    if (typeof XLSX !== 'undefined') {
-                        try {
-                            // 使用XLSX解析CSV
-                            const workbook = XLSX.read(csvText, {
-                                type: 'string',
-                                raw: true,
-                                codepage: 65001 // UTF-8
-                            });
-                            
-                            const firstSheetName = workbook.SheetNames[0];
-                            const worksheet = workbook.Sheets[firstSheetName];
-                            
-                            // 将工作表转换为JSON
-                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                            
-                            console.log('使用XLSX解析CSV成功，数据行数:', jsonData.length);
-                            processExcelData(jsonData, fileType);
-                            
-                            // 恢复按钮状态
-                            const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                            uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                            uploadBtn.disabled = false;
-                            return;
-                            
-                        } catch (xlsxError) {
-                            console.log('XLSX解析CSV失败，尝试手动解析:', xlsxError);
-                        }
-                    }
-                    
-                    // 手动解析CSV
-                    const rows = csvText.split(/\r\n|\n|\r/);
-                    const jsonData = [];
-                    
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i].trim();
-                        if (row === '') continue;
-                        
-                        // 简单解析CSV，处理引号
-                        const cells = [];
-                        let currentCell = '';
-                        let inQuotes = false;
-                        
-                        for (let j = 0; j < row.length; j++) {
-                            const char = row[j];
-                            
-                            if (char === '"' && !inQuotes) {
-                                inQuotes = true;
-                            } else if (char === '"' && inQuotes && j + 1 < row.length && row[j + 1] === '"') {
-                                currentCell += '"';
-                                j++; // 跳过下一个引号
-                            } else if (char === '"' && inQuotes) {
-                                inQuotes = false;
-                            } else if (char === ',' && !inQuotes) {
-                                cells.push(currentCell);
-                                currentCell = '';
-                            } else {
-                                currentCell += char;
-                            }
-                        }
-                        
-                        cells.push(currentCell);
-                        jsonData.push(cells.map(cell => cell.trim()));
-                    }
-                    
-                    console.log('手动解析CSV成功，数据行数:', jsonData.length);
-                    
-                    if (jsonData.length === 0) {
-                        throw new Error('CSV文件为空或格式不正确');
-                    }
-                    
-                    // 处理数据
-                    processExcelData(jsonData, fileType);
-                    
-                    // 恢复按钮状态
-                    const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                    uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                    uploadBtn.disabled = false;
-                    
-                } catch (error) {
-                    console.error(`解析${fileType} CSV文件时出错:`, error);
-                    
-                    alert(`解析${fileType}文件时出错：${error.message}`);
-                    
-                    // 恢复按钮状态
-                    const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                    uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                    uploadBtn.disabled = false;
-                }
-            };
-            
-            reader.onerror = function(error) {
-                console.error('读取文件时出错:', error);
-                alert('读取文件时出错：' + error.message);
-                
-                // 恢复按钮状态
-                const uploadBtn = fileType === 'A' ? document.getElementById('excelUploadBtnA') : document.getElementById('excelUploadBtnB');
-                uploadBtn.innerHTML = fileType === 'A' ? '<i class="fas fa-upload"></i> 选择A文件' : '<i class="fas fa-upload"></i> 选择B文件';
-                uploadBtn.disabled = false;
-            };
-            
-            // 尝试不同的编码
-            try {
-                reader.readAsText(file, 'UTF-8');
-            } catch (e1) {
-                try {
-                    reader.readAsText(file, 'GBK');
-                } catch (e2) {
-                    reader.readAsText(file);
-                }
-            }
-        }
-        
-        // 处理Excel数据
-        function processExcelData(jsonData, fileType) {
-            if (!jsonData || jsonData.length < 2) {
-                alert('文件中没有数据或数据格式不正确。至少需要表头和数据行。');
-                return;
-            }
-            
-            // 获取表头
-            const headers = jsonData[0].map(header => {
-                if (header === null || header === undefined) return '';
-                return String(header).trim();
-            });
-            
-            console.log(`${fileType}文件表头:`, headers);
-            
-            // 查找需要的列索引
-            const idIndex = findColumnIndex(headers, ['序号', 'id', 'ID', '编号']);
-            const stationCodeIndex = findColumnIndex(headers, ['工位号', '工位', 'station', 'Station', '工位编号']);
-            const stationNameIndex = findColumnIndex(headers, ['工位名称', '名称', 'name', 'Name', '工位名']);
-            const moduleCodeIndex = findColumnIndex(headers, ['模块号', '模块', 'module', 'Module', '模块编号']);
-            const createTimeIndex = findColumnIndex(headers, ['创建时间', '创建', 'create', 'Create', '时间', '日期']);
-            const modifyTimeIndex = findColumnIndex(headers, ['修改时', '修改时间', '修改', 'modify', 'Modify', '更新时间']);
-            const modifierIndex = findColumnIndex(headers, ['修改人', '修改者', 'modifier', 'Modifier', '操作人', '负责人']);
-            
-            // 检查必要的列是否存在
-            const requiredColumns = [
-                { name: '序号', index: idIndex },
-                { name: '工位号', index: stationCodeIndex },
-                { name: '工位名称', index: stationNameIndex },
-                { name: '模块号', index: moduleCodeIndex },
-                { name: '创建时间', index: createTimeIndex }
-            ];
-            
-            const missingColumns = requiredColumns.filter(col => col.index === -1);
-            if (missingColumns.length > 0) {
-                const missingNames = missingColumns.map(col => col.name).join(', ');
-                const foundHeaders = headers.filter(h => h).join(', ');
-                
-                let errorMsg = `${fileType}文件缺少必要的列：${missingNames}\n\n`;
-                errorMsg += `检测到的列有：${foundHeaders || '无'}\n\n`;
-                errorMsg += `请确保文件包含以下列：序号、工位号、工位名称、模块号、创建时间\n`;
-                errorMsg += `（列名可以有中文或英文变体）`;
-                
-                alert(errorMsg);
-                return;
-            }
-            
-            // 处理数据行
-            let dataArray = [];
-            let skippedRows = 0;
-            
-            for (let i = 1; i < jsonData.length; i++) {
-                const row = jsonData[i];
-                if (!row || row.length === 0) {
-                    skippedRows++;
-                    continue;
-                }
-                
-                // 处理每一行数据
-                const dataItem = {
-                    id: getCellValue(row, idIndex),
-                    stationCode: getCellValue(row, stationCodeIndex),
-                    stationName: getCellValue(row, stationNameIndex),
-                    moduleCode: getCellValue(row, moduleCodeIndex),
-                    createTime: formatDateTime(getCellValue(row, createTimeIndex)),
-                    modifyTime: modifyTimeIndex !== -1 ? formatDateTime(getCellValue(row, modifyTimeIndex)) : '',
-                    modifier: modifierIndex !== -1 ? getCellValue(row, modifierIndex) : '',
-                    source: fileType // 标记数据来源
-                };
-                
-                // 验证必要字段
-                if (dataItem.id && dataItem.stationCode && dataItem.moduleCode && dataItem.createTime) {
-                    dataArray.push(dataItem);
-                } else {
-                    skippedRows++;
-                }
-            }
-            
-            if (dataArray.length === 0) {
-                alert(`未从${fileType}文件中提取到有效数据。\n\n处理了 ${jsonData.length - 1} 行数据，但所有行都缺少必要字段。\n请检查文件格式和数据完整性。`);
-                return;
-            }
-            
-            console.log(`${fileType}文件成功提取 ${dataArray.length} 条数据，跳过 ${skippedRows} 行无效数据`);
-            
-            // 存储数据
-            if (fileType === 'A') {
-                allDataA = dataArray;
-            } else {
-                allDataB = dataArray;
-            }
-            
-            // 更新UI
-            updateDataSourceInfo();
-            updateCurrentTime();
-            
-            // 更新筛选器选项
-            updateMultiSelectOptions();
-            
-            // 如果A文件已上传，创建仪表板
-            if (fileType === 'A' && allDataA.length > 0) {
-                hideUploadHint();
-                createDashboard();
-                
-                // 初始筛选和渲染
-                if (currentDataSource === 'fileA') {
-                    filteredData = [...allDataA];
-                } else if (currentDataSource === 'fileB') {
-                    filteredData = [...allDataB];
-                }
-                filterData();
-            }
-            
-            // 如果B文件已上传，更新对比选项
-            if (fileType === 'B' && allDataB.length > 0) {
-                document.getElementById('dataSourceSelect').innerHTML = `
-                    <option value="fileA">使用A文件数据</option>
-                    <option value="fileB">使用B文件数据</option>
-                    <option value="comparison">显示对比差异</option>
-                `;
-            }
-            
-            // 显示处理摘要
-            if (skippedRows > 0) {
-                setTimeout(() => {
-                    alert(`${fileType}文件解析完成！\n\n成功导入: ${dataArray.length} 条有效记录\n跳过: ${skippedRows} 行无效数据（缺少必要字段或格式不正确）`);
-                }, 500);
-            }
-        }
-        
-        // 获取单元格值
-        function getCellValue(row, index) {
-            if (index === -1 || index >= row.length) return '';
-            const value = row[index];
-            if (value === null || value === undefined) return '';
-            return String(value).trim();
-        }
-        
-        // 查找列索引
-        function findColumnIndex(headers, possibleNames) {
-            for (let i = 0; i < headers.length; i++) {
-                const header = headers[i].toLowerCase();
-                for (const name of possibleNames) {
-                    if (header.includes(name.toLowerCase())) {
-                        return i;
-                    }
-                }
-            }
-            return -1;
-        }
-        
-        // 格式化日期时间
-        function formatDateTime(dateTimeStr) {
-            if (!dateTimeStr) return '';
-            
-            // 如果已经是YYYY-MM-DD HH:mm:ss格式，直接返回
-            if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateTimeStr)) {
-                return dateTimeStr;
-            }
-            
-            // 尝试解析不同的日期格式
-            let date = null;
-            
-            // 处理Excel序列号日期
-            if (/^\d+(\.\d+)?$/.test(dateTimeStr)) {
-                const excelSerial = parseFloat(dateTimeStr);
-                // Excel日期序列号基准是1899-12-30
-                const baseDate = new Date(1899, 11, 30);
-                date = new Date(baseDate.getTime() + excelSerial * 24 * 60 * 60 * 1000);
-            } else {
-                // 尝试作为字符串解析
-                date = new Date(dateTimeStr);
-            }
-            
-            // 检查日期是否有效
-            if (isNaN(date.getTime())) {
-                console.warn('无法解析日期:', dateTimeStr);
-                return dateTimeStr; // 返回原始字符串
-            }
-            
-            // 格式化为YYYY-MM-DD HH:mm:ss
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
-        
-        // 更新多选框选项
-        function updateMultiSelectOptions() {
-            // 确定使用哪个数据源来更新筛选器
-            let sourceData = [];
-            if (currentDataSource === 'fileA') {
-                sourceData = allDataA;
-            } else if (currentDataSource === 'fileB') {
-                sourceData = allDataB;
-            } else if (currentDataSource === 'comparison') {
-                sourceData = allComparisonData;
-            }
-            
-            if (sourceData.length === 0) return;
-            
-            // 更新年份多选框
-            const yearDropdown = document.getElementById('yearDropdown');
-            yearDropdown.innerHTML = '';
-            
-            // 收集所有年份
-            const years = new Set();
-            sourceData.forEach(item => {
-                if (item.createTime) {
-                    const year = item.createTime.substring(0, 4);
-                    if (/^\d{4}$/.test(year)) {
-                        years.add(year);
-                    }
-                }
-            });
-            
-            // 按年份排序
-            const sortedYears = Array.from(years).sort((a, b) => b - a);
-            
-            // 添加"全选"选项
-            const selectAllOption = document.createElement('div');
-            selectAllOption.className = 'multi-select-option select-all-option';
-            selectAllOption.innerHTML = `
-                <input type="checkbox" id="selectAllYears" ${selectedYears.includes('all') ? 'checked' : ''}>
-                <label for="selectAllYears"><strong>全选/全不选</strong></label>
-            `;
-            
-            selectAllOption.querySelector('input').addEventListener('change', function() {
-                const yearCheckboxes = yearDropdown.querySelectorAll('input[type="checkbox"]:not(#selectAllYears)');
-                if (this.checked) {
-                    // 全选
-                    selectedYears = ['all'];
-                    yearCheckboxes.forEach(cb => {
-                        cb.checked = true;
-                        if (cb.id !== 'selectAllYears') {
-                            const yearValue = cb.value;
-                            if (!selectedYears.includes(yearValue)) {
-                                selectedYears.push(yearValue);
-                            }
-                        }
-                    });
-                } else {
-                    // 全不选
-                    selectedYears = [];
-                    yearCheckboxes.forEach(cb => cb.checked = false);
-                }
-                updateSelectedDisplay();
-                filterData();
-            });
-            
-            yearDropdown.appendChild(selectAllOption);
-            
-            // 添加年份选项
-            sortedYears.forEach(year => {
-                const option = document.createElement('div');
-                option.className = 'multi-select-option';
-                option.innerHTML = `
-                    <input type="checkbox" id="year_${year}" value="${year}" ${selectedYears.includes(year) || selectedYears.includes('all') ? 'checked' : ''}>
-                    <label for="year_${year}">${year}年</label>
-                `;
-                
-                option.querySelector('input').addEventListener('change', function() {
-                    if (this.checked) {
-                        // 如果之前是全选状态，先移除'all'
-                        const allIndex = selectedYears.indexOf('all');
-                        if (allIndex !== -1) {
-                            selectedYears.splice(allIndex, 1);
-                        }
-                        selectedYears.push(this.value);
-                    } else {
-                        // 移除选中的年份
-                        const index = selectedYears.indexOf(this.value);
-                        if (index !== -1) {
-                            selectedYears.splice(index, 1);
-                        }
-                        // 更新全选复选框
-                        document.getElementById('selectAllYears').checked = false;
-                    }
-                    updateSelectedDisplay();
-                    filterData();
-                });
-                
-                yearDropdown.appendChild(option);
-            });
-            
-            // 更新工位多选框
-            const stationDropdown = document.getElementById('stationDropdown');
-            stationDropdown.innerHTML = '';
-            
-            // 收集所有工位
-            const stations = new Set();
-            sourceData.forEach(item => {
-                if (item.stationCode) {
-                    stations.add(item.stationCode);
-                }
-            });
-            
-            // 添加工位选项
-            const stationArray = Array.from(stations).sort();
-            
-            // 添加"全选"选项
-            const selectAllStationsOption = document.createElement('div');
-            selectAllStationsOption.className = 'multi-select-option select-all-option';
-            selectAllStationsOption.innerHTML = `
-                <input type="checkbox" id="selectAllStations" ${selectedStations.includes('all') ? 'checked' : ''}>
-                <label for="selectAllStations"><strong>全选/全不选</strong></label>
-            `;
-            
-            selectAllStationsOption.querySelector('input').addEventListener('change', function() {
-                const stationCheckboxes = stationDropdown.querySelectorAll('input[type="checkbox"]:not(#selectAllStations)');
-                if (this.checked) {
-                    // 全选
-                    selectedStations = ['all'];
-                    stationCheckboxes.forEach(cb => {
-                        cb.checked = true;
-                        if (cb.id !== 'selectAllStations') {
-                            const stationValue = cb.value;
-                            if (!selectedStations.includes(stationValue)) {
-                                selectedStations.push(stationValue);
-                            }
-                        }
-                    });
-                } else {
-                    // 全不选
-                    selectedStations = [];
-                    stationCheckboxes.forEach(cb => cb.checked = false);
-                }
-                updateSelectedDisplay();
-                filterData();
-            });
-            
-            stationDropdown.appendChild(selectAllStationsOption);
-            
-            // 添加工位选项
-            stationArray.forEach(station => {
-                // 查找对应的工位名称
-                const stationItem = sourceData.find(item => item.stationCode === station);
-                const stationName = stationItem ? stationItem.stationName : station;
-                
-                const option = document.createElement('div');
-                option.className = 'multi-select-option';
-                option.innerHTML = `
-                    <input type="checkbox" id="station_${station}" value="${station}" ${selectedStations.includes(station) || selectedStations.includes('all') ? 'checked' : ''}>
-                    <label for="station_${station}">${station} - ${stationName}</label>
-                `;
-                
-                option.querySelector('input').addEventListener('change', function() {
-                    if (this.checked) {
-                        // 如果之前是全选状态，先移除'all'
-                        const allIndex = selectedStations.indexOf('all');
-                        if (allIndex !== -1) {
-                            selectedStations.splice(allIndex, 1);
-                        }
-                        selectedStations.push(this.value);
-                    } else {
-                        // 移除选中的工位
-                        const index = selectedStations.indexOf(this.value);
-                        if (index !== -1) {
-                            selectedStations.splice(index, 1);
-                        }
-                        // 更新全选复选框
-                        document.getElementById('selectAllStations').checked = false;
-                    }
-                    updateSelectedDisplay();
-                    filterData();
-                });
-                
-                stationDropdown.appendChild(option);
-            });
-            
-            // 更新选中显示
-            updateSelectedDisplay();
-        }
-        
-        // 更新选中显示
-        function updateSelectedDisplay() {
-            // 更新年份显示
-            const yearSelected = document.getElementById('yearSelected');
-            if (selectedYears.includes('all') || selectedYears.length === 0) {
-                yearSelected.textContent = '全部年份';
-            } else {
-                const count = selectedYears.length;
-                yearSelected.textContent = `已选择 ${count} 个年份`;
-            }
-            
-            // 更新工位显示
-            const stationSelected = document.getElementById('stationSelected');
-            if (selectedStations.includes('all') || selectedStations.length === 0) {
-                stationSelected.textContent = '全部工位';
-            } else {
-                const count = selectedStations.length;
-                stationSelected.textContent = `已选择 ${count} 个工位`;
-            }
-        }
-        
-        // 更改数据源
-        function changeDataSource() {
-            const select = document.getElementById('dataSourceSelect');
-            currentDataSource = select.value;
-            
-            if (currentDataSource === 'fileA' && allDataA.length === 0) {
-                alert('请先上传A文件');
-                select.value = 'fileA';
-                return;
-            } else if (currentDataSource === 'fileB' && allDataB.length === 0) {
-                alert('请先上传B文件');
-                select.value = 'fileA';
-                return;
-            } else if (currentDataSource === 'comparison' && (allDataA.length === 0 || allDataB.length === 0)) {
-                alert('请先上传A文件和B文件才能进行对比');
-                select.value = 'fileA';
-                return;
-            }
-            
-            // 更新数据源信息
-            updateDataSourceInfo();
-            
-            // 重新创建仪表板
-            createDashboard();
-            
-            // 根据数据源设置筛选数据
-            if (currentDataSource === 'comparison') {
-                // 对比模式下，使用对比数据
-                filteredData = allComparisonData;
-                renderComparisonStats();
-                renderComparisonDetails();
-                renderComparisonChart();
-            } else {
-                // 普通模式下，使用A或B文件数据
-                if (currentDataSource === 'fileA') {
-                    filteredData = [...allDataA];
-                } else {
-                    filteredData = [...allDataB];
-                }
-                
-                // 更新筛选器选项
-                updateMultiSelectOptions();
-                
-                // 筛选和渲染
-                filterData();
-            }
-        }
-        
-        // 筛选数据
-        function filterData() {
-            // 根据年份筛选
-            if (!selectedYears.includes('all') && selectedYears.length > 0) {
-                filteredData = filteredData.filter(item => {
-                    if (!item.createTime) return false;
-                    const createYear = item.createTime.substring(0, 4);
-                    return selectedYears.includes(createYear);
-                });
-            }
-            
-            // 根据工位筛选
-            if (!selectedStations.includes('all') && selectedStations.length > 0) {
-                filteredData = filteredData.filter(item => selectedStations.includes(item.stationCode));
-            }
-            
-            // 更新筛选文本
-            updateFilterText();
-            
-            // 重新渲染所有组件
-            if (currentDataSource === 'comparison') {
-                renderComparisonStats();
-                renderComparisonDetails();
-                renderComparisonChart();
-            } else {
-                renderCharts();
-                renderModuleCategories();
-                renderRankingTable();
-                renderDataTable();
-            }
-            
-            // 更新总记录数显示
-            document.getElementById('totalRecords').textContent = filteredData.length;
-        }
-        
-        // 重置筛选器
-        function resetFilters() {
-            // 重置年份筛选
-            selectedYears = ['all'];
-            const yearCheckboxes = document.querySelectorAll('#yearDropdown input[type="checkbox"]');
-            yearCheckboxes.forEach(cb => {
-                if (cb.id === 'selectAllYears') {
-                    cb.checked = true;
-                } else {
-                    cb.checked = true;
-                }
-            });
-            
-            // 重置工位筛选
-            selectedStations = ['all'];
-            const stationCheckboxes = document.querySelectorAll('#stationDropdown input[type="checkbox"]');
-            stationCheckboxes.forEach(cb => {
-                if (cb.id === 'selectAllStations') {
-                    cb.checked = true;
-                } else {
-                    cb.checked = true;
-                }
-            });
-            
-            // 更新显示
-            updateSelectedDisplay();
-            
-            // 重新筛选
-            filterData();
-        }
-        
-        // 更新筛选文本
-        function updateFilterText() {
-            const yearText = selectedYears.includes('all') ? '所有年份' : `${selectedYears.length}个年份`;
-            const stationText = selectedStations.includes('all') ? '所有工位' : `${selectedStations.length}个工位`;
-            
-            document.getElementById('currentFilter').textContent = `${yearText} ${stationText}`;
-        }
-        
-        // 执行对比分析
-        function runComparison() {
-            if (allDataA.length === 0 || allDataB.length === 0) {
-                alert('请先上传A文件和B文件才能进行对比分析');
-                return;
-            }
-            
-            // 切换到对比模式
-            document.getElementById('dataSourceSelect').value = 'comparison';
-            changeDataSource();
-            
-            // 执行对比分析
-            performComparison();
-        }
-        
-        // 执行对比分析
-        function performComparison() {
-            console.log('开始对比分析...');
-            
-            // 创建对比结果数组
-            allComparisonData = [];
-            
-            // 创建索引映射以便快速查找
-            const aIndexMap = new Map();
-            const bIndexMap = new Map();
-            
-            // 为A文件数据创建索引
-            allDataA.forEach(item => {
-                const key = `${item.id || ''}_${item.stationCode || ''}_${item.moduleCode || ''}`;
-                aIndexMap.set(key, item);
-            });
-            
-            // 为B文件数据创建索引
-            allDataB.forEach(item => {
-                const key = `${item.id || ''}_${item.stationCode || ''}_${item.moduleCode || ''}`;
-                bIndexMap.set(key, item);
-            });
-            
-            // 1. 找出A中有但B中没有的记录（删除/缺失）
-            allDataA.forEach(aItem => {
-                const key = `${aItem.id || ''}_${aItem.stationCode || ''}_${aItem.moduleCode || ''}`;
-                
-                if (!bIndexMap.has(key)) {
-                    // A中有但B中没有 - 标记为删除
-                    allComparisonData.push({
-                        ...aItem,
-                        status: 'removed',
-                        matchInB: false,
-                        bData: null,
-                        comparisonNotes: `记录在B文件中缺失`
-                    });
-                } else {
-                    // 存在匹配项，检查是否有变化
-                    const bItem = bIndexMap.get(key);
-                    const hasChanged = compareDataItems(aItem, bItem);
-                    
-                    if (hasChanged) {
-                        // 内容有变化
-                        allComparisonData.push({
-                            ...aItem,
-                            status: 'changed',
-                            matchInB: true,
-                            bData: bItem,
-                            comparisonNotes: getChangeDescription(aItem, bItem)
-                        });
-                    } else {
-                        // 内容相同
-                        allComparisonData.push({
-                            ...aItem,
-                            status: 'unchanged',
-                            matchInB: true,
-                            bData: bItem,
-                            comparisonNotes: '记录在两个文件中相同'
-                        });
-                    }
-                }
-            });
-            
-            // 2. 找出B中有但A中没有的记录（新增）
-            allDataB.forEach(bItem => {
-                const key = `${bItem.id || ''}_${bItem.stationCode || ''}_${bItem.moduleCode || ''}`;
-                
-                if (!aIndexMap.has(key)) {
-                    // B中有但A中没有 - 标记为新增
-                    allComparisonData.push({
-                        ...bItem,
-                        status: 'added',
-                        matchInB: true,
-                        bData: bItem,
-                        comparisonNotes: `记录在A文件中缺失，为新增记录`
-                    });
-                }
-            });
-            
-            console.log('对比分析完成，总计对比记录:', allComparisonData.length);
-            
-            // 更新数据源信息
-            updateDataSourceInfo();
-            
-            // 渲染对比结果
-            if (currentDataSource === 'comparison') {
-                renderComparisonStats();
-                renderComparisonDetails();
-                renderComparisonChart();
-            }
-            
-            // 显示对比结果摘要
-            showComparisonSummary();
-        }
-        
-        // 比较两个数据项是否相同
-        function compareDataItems(itemA, itemB) {
-            // 比较关键字段
-            const fieldsToCompare = [
-                'stationCode',
-                'stationName', 
-                'moduleCode',
-                'modifier',
-                'modifyTime'
-            ];
-            
-            for (const field of fieldsToCompare) {
-                const valA = itemA[field] || '';
-                const valB = itemB[field] || '';
-                
-                // 如果两个值都为空，视为相同
-                if (valA === '' && valB === '') {
-                    continue;
-                }
-                
-                // 去除空格后比较
-                if (valA.toString().trim() !== valB.toString().trim()) {
+                const cacheObj = JSON.parse(cached);
+                if(cacheObj.rawData && cacheObj.rawData.length) {
+                    rawData = cacheObj.rawData;
+                    applyFilters();
+                    const fileName = cacheObj.fileName || "上次导入的文件";
+                    document.getElementById('currentFileName').innerText = fileName;
+                    document.getElementById('dataStatus').innerHTML = `<i class="bi bi-check-circle-fill"></i> ✅ 自动加载缓存文件：${fileName}，共 ${rawData.length} 条记录，涉及 ${getModelSet(rawData).size} 种车型。`;
+                    document.getElementById('cacheStatus').innerHTML = `📦 缓存加载 (${new Date(cacheObj.timestamp).toLocaleString()})`;
                     return true;
                 }
-            }
-            
-            return false;
+            } catch(e) { console.warn('缓存解析失败', e); }
         }
-        
-        // 获取变化描述
-        function getChangeDescription(itemA, itemB) {
-            const changes = [];
-            
-            if ((itemA.modifier || '') !== (itemB.modifier || '')) {
-                changes.push(`修改人: ${itemA.modifier || '空'} → ${itemB.modifier || '空'}`);
-            }
-            
-            if ((itemA.modifyTime || '') !== (itemB.modifyTime || '')) {
-                changes.push(`修改时间: ${itemA.modifyTime || '空'} → ${itemB.modifyTime || '空'}`);
-            }
-            
-            if ((itemA.stationName || '') !== (itemB.stationName || '')) {
-                changes.push(`工位名称: ${itemA.stationName || '空'} → ${itemB.stationName || '空'}`);
-            }
-            
-            return changes.length > 0 ? changes.join('; ') : '无变化';
-        }
-        
-        // 显示对比结果摘要
-        function showComparisonSummary() {
-            if (allComparisonData.length === 0) {
-                alert('对比分析完成，但未发现任何差异。\n\n可能原因：\n1. 两个文件完全相同\n2. 文件格式或列名不匹配\n3. 数据标识方式不同\n\n建议检查文件内容。');
-                return;
-            }
-            
-            const addedCount = allComparisonData.filter(item => item.status === 'added').length;
-            const removedCount = allComparisonData.filter(item => item.status === 'removed').length;
-            const changedCount = allComparisonData.filter(item => item.status === 'changed').length;
-            const unchangedCount = allComparisonData.filter(item => item.status === 'unchanged').length;
-            
-            let summary = `对比分析完成！\n\n`;
-            summary += `A文件: ${allDataA.length} 条记录\n`;
-            summary += `B文件: ${allDataB.length} 条记录\n`;
-            summary += `对比结果: ${allComparisonData.length} 条记录\n\n`;
-            summary += `差异统计：\n`;
-            summary += `• 新增记录: ${addedCount} 条 (B中有A中无)\n`;
-            summary += `• 删除记录: ${removedCount} 条 (A中有B中无)\n`;
-            summary += `• 修改记录: ${changedCount} 条 (内容有变化)\n`;
-            summary += `• 未变记录: ${unchangedCount} 条 (内容相同)\n\n`;
-            
-            if (addedCount === 0 && removedCount === 0 && changedCount === 0) {
-                summary += `注意：未发现实际差异，所有记录均相同。`;
-            }
-            
-            alert(summary);
-        }
-        
-        // 渲染对比统计
-        function renderComparisonStats() {
-            const container = document.getElementById('comparisonStats');
-            if (!container) return;
-            
-            // 统计各种类型的数量
-            const addedCount = allComparisonData.filter(item => item.status === 'added').length;
-            const removedCount = allComparisonData.filter(item => item.status === 'removed').length;
-            const changedCount = allComparisonData.filter(item => item.status === 'changed').length;
-            const unchangedCount = allComparisonData.filter(item => item.status === 'unchanged').length;
-            
-            container.innerHTML = `
-                <div class="comparison-stat">
-                    <div class="comparison-stat-value added">${addedCount}</div>
-                    <div class="comparison-stat-label">新增记录<br>(B中有A中无)</div>
-                </div>
-                <div class="comparison-stat">
-                    <div class="comparison-stat-value removed">${removedCount}</div>
-                    <div class="comparison-stat-label">删除记录<br>(A中有B中无)</div>
-                </div>
-                <div class="comparison-stat">
-                    <div class="comparison-stat-value changed">${changedCount}</div>
-                    <div class="comparison-stat-label">修改记录<br>(内容有变化)</div>
-                </div>
-                <div class="comparison-stat">
-                    <div class="comparison-stat-value unchanged">${unchangedCount}</div>
-                    <div class="comparison-stat-label">未变记录<br>(内容无变化)</div>
-                </div>
-                <div class="comparison-stat">
-                    <div class="comparison-stat-value" style="color: #1a5fb4;">${allComparisonData.length}</div>
-                    <div class="comparison-stat-label">总计记录</div>
-                </div>
-            `;
-        }
-        
-        // 渲染对比详情
-        function renderComparisonDetails() {
-            const tableBody = document.getElementById('comparisonTable');
-            const filtersContainer = document.getElementById('comparisonFilters');
-            
-            if (!tableBody || !filtersContainer) return;
-            
-            // 清空表格
-            tableBody.innerHTML = '';
-            
-            // 创建筛选按钮
-            filtersContainer.innerHTML = `
-                <button class="comparison-filter-btn active" data-filter="all">
-                    <i class="fas fa-layer-group"></i> 全部 (${allComparisonData.length})
-                </button>
-                <button class="comparison-filter-btn" data-filter="added">
-                    <span class="diff-indicator diff-added"></span> 新增 (${allComparisonData.filter(item => item.status === 'added').length})
-                </button>
-                <button class="comparison-filter-btn" data-filter="removed">
-                    <span class="diff-indicator diff-removed"></span> 删除 (${allComparisonData.filter(item => item.status === 'removed').length})
-                </button>
-                <button class="comparison-filter-btn" data-filter="changed">
-                    <span class="diff-indicator diff-changed"></span> 修改 (${allComparisonData.filter(item => item.status === 'changed').length})
-                </button>
-                <button class="comparison-filter-btn" data-filter="unchanged">
-                    <span class="diff-indicator diff-unchanged"></span> 未变 (${allComparisonData.filter(item => item.status === 'unchanged').length})
-                </button>
-            `;
-            
-            // 添加筛选按钮事件
-            const filterButtons = filtersContainer.querySelectorAll('.comparison-filter-btn');
-            filterButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 移除所有按钮的active类
-                    filterButtons.forEach(b => b.classList.remove('active'));
-                    // 为当前按钮添加active类
-                    this.classList.add('active');
-                    
-                    // 获取筛选类型
-                    const filterType = this.getAttribute('data-filter');
-                    
-                    // 筛选数据
-                    let filtered = allComparisonData;
-                    if (filterType !== 'all') {
-                        filtered = allComparisonData.filter(item => item.status === filterType);
-                    }
-                    
-                    // 渲染筛选后的数据
-                    renderComparisonTable(filtered);
-                });
+        document.getElementById('dataStatus').innerHTML = `<i class="bi bi-info-circle-fill"></i> 未找到缓存数据。请点击“从默认路径选择文件”按钮，并从以下路径选择Excel文件：<br><code>${defaultPath}</code>`;
+        document.getElementById('cacheStatus').innerHTML = '无缓存，请手动导入';
+        return false;
+    }
+
+    function clearCache() {
+        localStorage.removeItem('stoppage_analysis_data');
+        rawData = [];
+        filteredData = [];
+        applyFilters();
+        document.getElementById('currentFileName').innerText = "未加载";
+        document.getElementById('dataStatus').innerHTML = `<i class="bi bi-info-circle-fill"></i> 缓存已清除。请点击“从默认路径选择文件”按钮，并从以下路径选择Excel文件：<br><code>${defaultPath}</code>`;
+        document.getElementById('cacheStatus').innerHTML = '缓存已清除';
+        Object.values(charts).forEach(ch => ch && ch.clear());
+        document.getElementById('detailTbody').innerHTML = '<td colspan="9" class="text-center">暂无数据</td>';
+        document.getElementById('insightArea').innerHTML = '<p class="text-muted">无数据，请导入文件</p>';
+        ['totalTime','totalFreq','modelCount','avgPerModel'].forEach(id => document.getElementById(id).innerText = '-');
+    }
+
+    function getModelSet(data) {
+        const set = new Set();
+        data.forEach(d => { if(d.modelCode) set.add(d.modelCode); });
+        return set;
+    }
+
+    function groupStats(data, groupField) {
+        const groups = new Map();
+        data.forEach(item => {
+            let key = item[groupField] || "未知";
+            if(key === "") key = "未知";
+            if(!groups.has(key)) groups.set(key, { totalDur: 0, count: 0, modelSet: new Set() });
+            const g = groups.get(key);
+            g.totalDur += item.duration;
+            g.count += 1;
+            if(item.modelCode) g.modelSet.add(item.modelCode);
+        });
+        const result = [];
+        for(let [key, val] of groups.entries()) {
+            result.push({
+                name: key,
+                totalDuration: val.totalDur,
+                frequency: val.count,
+                modelCount: val.modelSet.size,
+                avgPerModel: val.modelSet.size === 0 ? 0 : val.totalDur / val.modelSet.size
             });
-            
-            // 初始渲染全部数据
-            renderComparisonTable(allComparisonData);
         }
-        
-        // 渲染对比表格
-        function renderComparisonTable(data) {
-            const tableBody = document.getElementById('comparisonTable');
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = '';
-            
-            if (data.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="10" style="text-align: center; color: #718096; padding: 40px;">
-                            没有找到匹配的记录
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // 只显示前200条数据，避免页面卡顿
-            const displayData = data.slice(0, 200);
-            
-            displayData.forEach(item => {
-                const row = document.createElement('tr');
-                
-                // 根据状态设置行样式
-                if (item.status === 'added') {
-                    row.classList.add('comparison-diff-row');
-                } else if (item.status === 'removed') {
-                    row.style.backgroundColor = '#fee2e2';
-                } else if (item.status === 'changed') {
-                    row.style.backgroundColor = '#fef3c7';
-                }
-                
-                // 确定状态文本和颜色
-                let statusText = '';
-                let statusColor = '';
-                let statusIndicator = '';
-                
-                switch (item.status) {
-                    case 'added':
-                        statusText = '新增';
-                        statusColor = '#10b981';
-                        statusIndicator = '<span class="diff-indicator diff-added"></span>';
-                        break;
-                    case 'removed':
-                        statusText = '删除';
-                        statusColor = '#ef4444';
-                        statusIndicator = '<span class="diff-indicator diff-removed"></span>';
-                        break;
-                    case 'changed':
-                        statusText = '修改';
-                        statusColor = '#f59e0b';
-                        statusIndicator = '<span class="diff-indicator diff-changed"></span>';
-                        break;
-                    case 'unchanged':
-                        statusText = '未变';
-                        statusColor = '#6b7280';
-                        statusIndicator = '<span class="diff-indicator diff-unchanged"></span>';
-                        break;
-                }
-                
-                // 确定修改状态
-                const isModified = item.modifyTime !== "" && item.modifier;
-                const modifyStatusText = isModified ? '已修改' : '未修改';
-                const modifyStatusColor = isModified ? '#1a5fb4' : '#e53e3e';
-                
-                // 提取模块分类
-                let moduleCategory = '';
-                if (item.moduleCode) {
-                    const parts = item.moduleCode.split('-');
-                    if (parts.length > 1) {
-                        moduleCategory = parts[1].substring(0, 3);
-                    }
-                }
-                
-                // 获取B文件数据（如果存在）
-                const bData = item.bData;
-                const bModifier = bData ? bData.modifier || '-' : '-';
-                const bModifyStatus = bData ? (bData.modifyTime !== "" && bData.modifier ? '已修改' : '未修改') : '-';
-                const bStationName = bData ? bData.stationName || '-' : '-';
-                
-                row.innerHTML = `
-                    <td style="color: ${statusColor}; font-weight: 600;">
-                        ${statusIndicator}${statusText}
-                    </td>
-                    <td>${item.id || '-'}</td>
-                    <td>${item.stationCode || '-'}</td>
-                    <td>${item.stationName || '-'} ${item.status === 'changed' && bData && item.stationName !== bStationName ? `<br><small style="color: ${statusColor};">→ ${bStationName}</small>` : ''}</td>
-                    <td>
-                        ${item.moduleCode || '-'}
-                        ${moduleCategory ? `<br><small style="color: #1a5fb4;">分类: ${moduleCategory}</small>` : ''}
-                    </td>
-                    <td>${item.createTime || '-'}</td>
-                    <td>
-                        <span style="color: ${modifyStatusColor}; font-weight: 500;">${modifyStatusText}</span>
-                        ${item.status === 'changed' && bData && modifyStatusText !== bModifyStatus ? `<br><small style="color: ${statusColor};">→ ${bModifyStatus}</small>` : ''}
-                    </td>
-                    <td>
-                        ${item.modifier || '-'}
-                        ${item.status === 'changed' && bData && item.modifier !== bModifier ? `<br><small style="color: ${statusColor};">→ ${bModifier}</small>` : ''}
-                    </td>
-                    <td>${item.source === 'A' || item.status !== 'added' ? '✓' : '✗'}</td>
-                    <td>${item.matchInB ? '✓' : '✗'}</td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-            
-            // 如果数据超过200条，显示提示
-            if (data.length > 200) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td colspan="10" style="text-align: center; color: #718096; padding: 15px; font-size: 12px;">
-                        仅显示前200条记录，总共 ${data.length} 条记录
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            }
+        result.sort((a,b) => b.totalDuration - a.totalDuration);
+        const totalAll = result.reduce((sum, r) => sum + r.totalDuration, 0);
+        result.forEach(r => r.ratio = totalAll === 0 ? 0 : (r.totalDuration / totalAll * 100));
+        return result;
+    }
+
+    function getMonthlyTrend(data) {
+        const monthMap = new Map();
+        data.forEach(item => {
+            if(!item.date) return;
+            let month = item.date.substring(0,7);
+            if(!monthMap.has(month)) monthMap.set(month, { totalDur: 0, modelSet: new Set() });
+            const m = monthMap.get(month);
+            m.totalDur += item.duration;
+            if(item.modelCode) m.modelSet.add(item.modelCode);
+        });
+        const months = Array.from(monthMap.keys()).sort();
+        const totalDurList = months.map(m => monthMap.get(m).totalDur);
+        const avgPerModelList = months.map(m => {
+            const modelCount = monthMap.get(m).modelSet.size;
+            return modelCount === 0 ? 0 : monthMap.get(m).totalDur / modelCount;
+        });
+        return { months, totalDurList, avgPerModelList };
+    }
+
+    function renderTable(tableId, stats) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        if(!tbody) return;
+        if(!stats.length) {
+            tbody.innerHTML = '<td colspan="6">暂无数据</td>';
+            return;
         }
-        
-        // 渲染对比图表
-        function renderComparisonChart() {
-            const chartCtx = document.getElementById('comparisonChart');
-            const placeholder = document.getElementById('comparisonChartPlaceholder');
-            const legendContainer = document.getElementById('comparisonLegend');
-            
-            if (!chartCtx || !placeholder || !legendContainer) return;
-            
-            // 隐藏占位符
-            placeholder.style.display = 'none';
-            
-            // 获取上下文
-            const ctx = chartCtx.getContext('2d');
-            
-            // 销毁现有图表
-            if (window.comparisonChart) {
-                window.comparisonChart.destroy();
-            }
-            
-            // 统计各种类型的数量
-            const addedCount = allComparisonData.filter(item => item.status === 'added').length;
-            const removedCount = allComparisonData.filter(item => item.status === 'removed').length;
-            const changedCount = allComparisonData.filter(item => item.status === 'changed').length;
-            const unchangedCount = allComparisonData.filter(item => item.status === 'unchanged').length;
-            
-            if (allComparisonData.length === 0) {
-                // 如果没有数据，显示占位符
-                placeholder.style.display = 'flex';
-                placeholder.innerHTML = '<i class="fas fa-chart-bar"></i><p>暂无对比数据</p>';
-                return;
-            }
-            
-            try {
-                window.comparisonChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['新增', '删除', '修改', '未变'],
-                        datasets: [{
-                            label: '记录数量',
-                            data: [addedCount, removedCount, changedCount, unchangedCount],
-                            backgroundColor: [
-                                '#10b981', // 新增 - 绿色
-                                '#ef4444', // 删除 - 红色
-                                '#f59e0b', // 修改 - 橙色
-                                '#6b7280'  // 未变 - 灰色
-                            ],
-                            borderWidth: 1,
-                            borderColor: '#fff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                },
-                                title: {
-                                    display: true,
-                                    text: '记录数量',
-                                    font: {
-                                        size: 12
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = allComparisonData.length;
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // 更新图例
-                legendContainer.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #10b981;"></div>
-                        <span>新增记录 (${addedCount})</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ef4444;"></div>
-                        <span>删除记录 (${removedCount})</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #f59e0b;"></div>
-                        <span>修改记录 (${changedCount})</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #6b7280;"></div>
-                        <span>未变记录 (${unchangedCount})</span>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('创建对比图表时出错:', error);
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                    placeholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>图表渲染失败</p>';
-                }
-            }
+        let html = '';
+        stats.forEach(s => {
+            html += `<tr>
+                <td>${s.name}</td>
+                <td>${s.totalDuration.toFixed(2)}</td>
+                <td>${s.ratio.toFixed(2)}%</td>
+                <td>${s.frequency}</td>
+                <td>${s.modelCount}</td>
+                <td>${s.avgPerModel.toFixed(2)}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function renderAllTables(data) {
+        renderTable("tablePower", groupStats(data, "powerType"));
+        renderTable("tablePlatform", groupStats(data, "platform"));
+        renderTable("tableLine", groupStats(data, "line"));
+        renderTable("tableMainCause", groupStats(data, "mainCause"));
+        renderTable("tableStation", groupStats(data, "station").slice(0,10));
+    }
+
+    function updatePieChart(chartId, data, title) {
+        const dom = document.getElementById(chartId);
+        if(!dom) return;
+        if(!charts[chartId]) charts[chartId] = echarts.init(dom);
+        charts[chartId].setOption({
+            title: { text: title, left: 'center', top: 0 },
+            tooltip: { trigger: 'item', formatter: (params) => `${params.name}: ${params.percent.toFixed(2)}% (${params.value.toFixed(2)}分钟)` },
+            series: [{ type: 'pie', radius: '55%', data: data, label: { show: currentChartMode === 'direct', formatter: (params) => `${params.name}: ${params.percent.toFixed(2)}%` } }]
+        });
+    }
+
+    function updateBarChart(chartId, data, yName, color, rotateLabel = false) {
+        const dom = document.getElementById(chartId);
+        if(!dom) return;
+        if(!charts[chartId]) charts[chartId] = echarts.init(dom);
+        charts[chartId].setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (params) => `${params[0].name}: ${params[0].value.toFixed(2)} ${yName}` },
+            xAxis: { type: 'category', data: data.map(d => d.name), axisLabel: { rotate: rotateLabel ? 35 : 0, interval: 0 } },
+            yAxis: { type: 'value', name: yName },
+            series: [{ type: 'bar', data: data.map(d => d.value), itemStyle: { color: color, borderRadius: [6,6,0,0] }, label: { show: currentChartMode === 'direct', position: 'top', formatter: (params) => params.value.toFixed(2) } }]
+        });
+    }
+
+    function updateTrendChart(trend) {
+        const dom = document.getElementById('chartTrend');
+        if(!dom) return;
+        if(!charts['chartTrend']) charts['chartTrend'] = echarts.init(dom);
+        const option = {
+            title: { text: '月度停线趋势', left: 'center' },
+            tooltip: { trigger: 'axis', formatter: (params) => { let res = params[0].axisValue + '<br/>'; params.forEach(p => { res += `${p.marker} ${p.seriesName}: ${p.value.toFixed(2)}<br/>`; }); return res; } },
+            legend: { data: ['总停线时长(分钟)', '平均每车型停线(分钟)'], left: 'left' },
+            xAxis: { type: 'category', data: trend.months },
+            yAxis: [{ type: 'value', name: '总停线时长(分钟)' }, { type: 'value', name: '平均每车型停线(分钟)' }],
+            series: [
+                { name: '总停线时长(分钟)', type: 'line', data: trend.totalDurList, smooth: true, lineStyle: { color: '#5470c6', width: 3 }, symbol: 'circle', symbolSize: 8 },
+                { name: '平均每车型停线(分钟)', type: 'line', data: trend.avgPerModelList, smooth: true, lineStyle: { color: '#fac858', width: 3 }, symbol: 'diamond', symbolSize: 8, yAxisIndex: 1 }
+            ]
+        };
+        if(currentChartMode === 'direct') option.series.forEach(s => { s.label = { show: true, position: 'top', formatter: (params) => params.value.toFixed(2) }; });
+        charts['chartTrend'].setOption(option);
+    }
+
+    function renderAllCharts(data) {
+        if(!data.length) return;
+        const powerStats = groupStats(data, "powerType");
+        updatePieChart('chartPowerDist', powerStats.map(s => ({ name: s.name, value: s.totalDuration })), '停线时长分布');
+        updateBarChart('chartPowerAvg', powerStats.map(s => ({ name: s.name, value: s.avgPerModel })), '平均每车型停线(分钟)', '#91cc75');
+        const platformStats = groupStats(data, "platform");
+        updateBarChart('chartPlatformDist', platformStats.map(s => ({ name: s.name, value: s.totalDuration })), '停线时长(分钟)', '#5470c6');
+        updateBarChart('chartPlatformAvg', platformStats.map(s => ({ name: s.name, value: s.avgPerModel })), '平均每车型停线(分钟)', '#fac858');
+        const lineStats = groupStats(data, "line");
+        updateBarChart('chartLine', lineStats.map(s => ({ name: s.name, value: s.totalDuration })), '停线时长(分钟)', '#ee6666');
+        const stationStats = groupStats(data, "station");
+        updateBarChart('chartStation', stationStats.slice(0,10).map(s => ({ name: s.name, value: s.totalDuration })), '停线时长(分钟)', '#f39c12', true);
+        const trend = getMonthlyTrend(data);
+        updateTrendChart(trend);
+        // 主因分布饼图
+        const mainCauseStats = groupStats(data, "mainCause");
+        updatePieChart('chartMainCause', mainCauseStats.map(s => ({ name: s.name, value: s.totalDuration })), '停线主因分布');
+    }
+
+    function updateStats() {
+        const totalDur = filteredData.reduce((s, d) => s + d.duration, 0);
+        const freq = filteredData.length;
+        const modelSet = getModelSet(filteredData);
+        const avgPerModel = modelSet.size === 0 ? 0 : totalDur / modelSet.size;
+        document.getElementById('totalTime').innerText = totalDur.toFixed(2);
+        document.getElementById('totalFreq').innerText = freq;
+        document.getElementById('modelCount').innerText = modelSet.size;
+        document.getElementById('avgPerModel').innerText = avgPerModel.toFixed(2);
+    }
+
+    function renderDetailsAndAdvice() {
+        const tbody = document.getElementById('detailTbody');
+        if(!filteredData.length) {
+            tbody.innerHTML = '<td colspan="9" class="text-center">无匹配数据</td>';
+            document.getElementById('insightArea').innerHTML = '<p class="text-muted">无数据，请调整筛选条件</p>';
+            return;
         }
+        let html = '';
+        filteredData.slice(0, 300).forEach(row => {
+            html += `<tr>
+                <td>${row.date || ''}</td>
+                <td>${row.line || ''}</td>
+                <td>${row.station || ''}</td>
+                <td>${row.duration.toFixed(2)}</td>
+                <td>${row.modelCode || ''}</td>
+                <td>${row.powerType || ''}</td>
+                <td>${row.platform || ''}</td>
+                <td>${row.mainCause || ''}</td>
+                <td>${(row.reason || '').substring(0,60)}</td>
+            </tr>`;
+        });
+        if(filteredData.length > 300) html += `<tr><td colspan="9" class="text-muted">仅显示前300条，共${filteredData.length}条</td></tr>`;
+        tbody.innerHTML = html;
+
+        // 前位问题 + 主因建议
+        const stationStats = groupStats(filteredData, "station");
+        const top5Stations = stationStats.slice(0,5);
+        const mainCauseStats = groupStats(filteredData, "mainCause");
+        const topMainCause = mainCauseStats.slice(0,3);
         
-        // 渲染图表
-        function renderCharts() {
-            // 确保Chart对象可用
-            if (typeof Chart === 'undefined') {
-                console.error('Chart对象未定义，无法渲染图表');
-                document.getElementById('modificationChartPlaceholder').style.display = 'flex';
-                document.getElementById('stationChartPlaceholder').style.display = 'flex';
-                return;
-            }
-            
-            // 渲染修改完成情况图表
-            renderModificationChart();
-            
-            // 渲染工位完成情况图表
-            renderStationChart();
-        }
+        let insightHtml = `<div class="insight-note"><strong>🔍 前位问题清单</strong><br><ul>`;
+        top5Stations.forEach(s => insightHtml += `<li><strong>${s.name}</strong> 累计停线 ${s.totalDuration.toFixed(2)} 分钟，涉及车型 ${s.modelCount} 种，平均每车型 ${s.avgPerModel.toFixed(2)} 分钟。</li>`);
+        insightHtml += `</ul><strong>🎯 主因分布及对策建议</strong><br><ul>`;
         
-        // 渲染修改完成情况图表
-        function renderModificationChart() {
-            // 计算修改完成情况
-            const modifiedCount = filteredData.filter(item => item.modifyTime !== "" && item.modifier).length;
-            const unmodifiedCount = filteredData.length - modifiedCount;
-            
-            // 隐藏占位符
-            const placeholder = document.getElementById('modificationChartPlaceholder');
-            if (placeholder) placeholder.style.display = 'none';
-            
-            // 渲染修改完成情况饼图
-            const modificationCtx = document.getElementById('modificationChart');
-            if (!modificationCtx) return;
-            
-            const ctx = modificationCtx.getContext('2d');
-            
-            // 销毁现有图表
-            if (modificationChart) {
-                modificationChart.destroy();
-            }
-            
-            if (filteredData.length === 0) {
-                // 如果没有数据，显示占位符
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                    placeholder.innerHTML = '<i class="fas fa-chart-pie"></i><p>暂无数据</p>';
+        // 根据主因分布生成建议
+        topMainCause.forEach(mc => {
+            if(mc.name === "设计问题") insightHtml += `<li><strong>设计问题</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：建议在设计阶段加强孔位/干涉检查，推动DFMEA评审，增加样件试装验证。</li>`;
+            else if(mc.name === "工艺问题") insightHtml += `<li><strong>工艺问题</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：优化工艺文件，提前进行工艺仿真，完善新增管夹等标准作业指导书。</li>`;
+            else if(mc.name === "首台验证") insightHtml += `<li><strong>首台验证不足</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：强制要求首台车离线全流程验证，验证报告上线确认。</li>`;
+            else if(mc.name === "超节拍排产") insightHtml += `<li><strong>超节拍排产</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：优化排产计划，避免电车/复杂车型集中上线，平衡节拍。</li>`;
+            else if(mc.name === "作业人员不足") insightHtml += `<li><strong>作业人员不足</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：根据排产提前配置人员，加强多能工培养，建立临时支援机制。</li>`;
+            else if(mc.name === "首台连排") insightHtml += `<li><strong>首台连排</strong> (停线 ${mc.totalDuration.toFixed(2)} 分钟，占比 ${mc.ratio.toFixed(1)}%)：首台车后设置缓冲车位，避免多台首台连续上线，增加离线验证台。</li>`;
+        });
+        insightHtml += `</ul></div>`;
+        document.getElementById('insightArea').innerHTML = insightHtml;
+    }
+
+    function refreshAll() {
+        if(!filteredData.length) return;
+        renderAllTables(filteredData);
+        renderAllCharts(filteredData);
+        updateStats();
+        renderDetailsAndAdvice();
+    }
+
+    function applyFilters() {
+        if(!rawData.length) return;
+        let filtered = [...rawData];
+        const powerSel = document.getElementById('filterPower');
+        const selectedPowers = Array.from(powerSel.selectedOptions).map(o => o.value).filter(v => v !== 'all');
+        if(selectedPowers.length) filtered = filtered.filter(d => selectedPowers.includes(d.powerType));
+        const lineSel = document.getElementById('filterLine');
+        const selectedLines = Array.from(lineSel.selectedOptions).map(o => o.value).filter(v => v !== 'all');
+        if(selectedLines.length) filtered = filtered.filter(d => selectedLines.includes(d.line));
+        const platSel = document.getElementById('filterPlatform');
+        const selectedPlats = Array.from(platSel.selectedOptions).map(o => o.value).filter(v => v !== 'all');
+        if(selectedPlats.length) filtered = filtered.filter(d => selectedPlats.includes(d.platform));
+        const keyword = document.getElementById('filterStation').value.trim();
+        if(keyword) filtered = filtered.filter(d => d.station.includes(keyword));
+        const mainCauseSel = document.getElementById('filterMainCause');
+        const selectedMainCauses = Array.from(mainCauseSel.selectedOptions).map(o => o.value).filter(v => v !== 'all');
+        if(selectedMainCauses.length) filtered = filtered.filter(d => selectedMainCauses.includes(d.mainCause));
+        filteredData = filtered;
+        refreshAll();
+    }
+
+    function parseExcelAndLoad(dataArray, fileName) {
+        const mapped = [];
+        for(let row of dataArray) {
+            let newRow = {};
+            for(let [origKey, value] of Object.entries(row)) {
+                let stdKey = null;
+                for(let [cn, en] of Object.entries(fieldMapping)) {
+                    if(origKey.includes(cn) || origKey === en) { stdKey = en; break; }
                 }
-                return;
-            }
-            
-            try {
-                modificationChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['已完成修改', '未修改'],
-                        datasets: [{
-                            data: [modifiedCount, unmodifiedCount],
-                            backgroundColor: ['#1a5fb4', '#e2e8f0'],
-                            borderWidth: 1,
-                            borderColor: '#fff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('创建饼图时出错:', error);
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                    placeholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>图表渲染失败</p>';
+                if(!stdKey) continue;
+                if(stdKey === "duration") {
+                    let num = parseFloat(value);
+                    newRow[stdKey] = isNaN(num) ? 0 : num;
+                } else {
+                    newRow[stdKey] = (value === undefined || value === null) ? "" : String(value).trim();
                 }
             }
-        }
-        
-        // 渲染工位完成情况图表
-        function renderStationChart() {
-            // 计算各工位完成情况
-            const stationStats = {};
-            filteredData.forEach(item => {
-                const stationKey = item.stationCode ? `${item.stationCode} - ${item.stationName}` : '未知工位';
-                if (!stationStats[stationKey]) {
-                    stationStats[stationKey] = { total: 0, modified: 0 };
-                }
-                stationStats[stationKey].total++;
-                if (item.modifyTime !== "" && item.modifier) {
-                    stationStats[stationKey].modified++;
-                }
-            });
-            
-            // 转换为数组并计算未完成数量，然后按未完成数量降序排序
-            const stationArray = Object.keys(stationStats).map(name => {
-                const stats = stationStats[name];
-                const unmodified = stats.total - stats.modified;
-                return {
-                    name: name,
-                    modified: stats.modified,
-                    unmodified: unmodified,
-                    total: stats.total
-                };
-            }).sort((a, b) => b.unmodified - a.unmodified);
-            
-            // 提取排序后的数据
-            const stationNames = stationArray.map(item => item.name);
-            const stationModifiedCounts = stationArray.map(item => item.modified);
-            const stationUnmodifiedCounts = stationArray.map(item => item.unmodified);
-            
-            // 隐藏占位符
-            const placeholder = document.getElementById('stationChartPlaceholder');
-            if (placeholder) placeholder.style.display = 'none';
-            
-            // 渲染各工位完成情况条形图
-            const stationCtx = document.getElementById('stationChart');
-            if (!stationCtx) return;
-            
-            const ctx = stationCtx.getContext('2d');
-            
-            // 销毁现有图表
-            if (stationChart) {
-                stationChart.destroy();
-            }
-            
-            if (stationNames.length === 0) {
-                // 如果没有数据，显示占位符
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                    placeholder.innerHTML = '<i class="fas fa-chart-bar"></i><p>暂无数据</p>';
-                }
-                return;
-            }
-            
-            try {
-                stationChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: stationNames,
-                        datasets: [
-                            {
-                                label: '已完成修改',
-                                data: stationModifiedCounts,
-                                backgroundColor: '#1a5fb4'
-                            },
-                            {
-                                label: '未完成',
-                                data: stationUnmodifiedCounts,
-                                backgroundColor: '#e53e3e'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 0,
-                                    font: {
-                                        size: 10
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                },
-                                title: {
-                                    display: true,
-                                    text: '任务数量',
-                                    font: {
-                                        size: 12
-                                    }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    boxWidth: 8
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    afterBody: function(context) {
-                                        const datasetIndex = context[0].datasetIndex;
-                                        const dataIndex = context[0].dataIndex;
-                                        const total = stationArray[dataIndex].total;
-                                        const modified = stationArray[dataIndex].modified;
-                                        const unmodified = stationArray[dataIndex].unmodified;
-                                        
-                                        const modifiedPercentage = total > 0 ? Math.round((modified / total) * 100) : 0;
-                                        const unmodifiedPercentage = total > 0 ? Math.round((unmodified / total) * 100) : 0;
-                                        
-                                        return [
-                                            `总计: ${total}`,
-                                            `完成率: ${modifiedPercentage}%`,
-                                            `未完成率: ${unmodifiedPercentage}%`
-                                        ];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('创建条形图时出错:', error);
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                    placeholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>图表渲染失败</p>';
-                }
-            }
-        }
-        
-        // 渲染模块分类
-        function renderModuleCategories() {
-            // 按模块号"-"后面的前三位进行分类，统计已完成和未完成数量
-            const categoryMap = {};
-            
-            filteredData.forEach(item => {
-                if (item.moduleCode) {
-                    // 提取模块号中"-"后面的部分
-                    const parts = item.moduleCode.split('-');
-                    if (parts.length > 1) {
-                        // 取"-"后面的前3位作为分类
-                        const codePart = parts[1];
-                        const category = codePart.substring(0, 3);
-                        
-                        if (!categoryMap[category]) {
-                            categoryMap[category] = { total: 0, modified: 0 };
-                        }
-                        categoryMap[category].total++;
-                        if (item.modifyTime !== "" && item.modifier) {
-                            categoryMap[category].modified++;
-                        }
-                    }
-                }
-            });
-            
-            // 转换为数组并按未完成数量排序
-            const categories = Object.keys(categoryMap).map(category => {
-                return { 
-                    name: category, 
-                    total: categoryMap[category].total,
-                    modified: categoryMap[category].modified,
-                    unmodified: categoryMap[category].total - categoryMap[category].modified
-                };
-            }).sort((a, b) => b.unmodified - a.unmodified);
-            
-            // 渲染到页面
-            const container = document.getElementById('moduleCategories');
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            if (categories.length === 0) {
-                container.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">暂无模块分类数据</p>';
-                return;
-            }
-            
-            // 创建分类标签
-            categories.forEach(category => {
-                const tag = document.createElement('div');
-                tag.className = 'category-tag';
-                
-                // 计算百分比
-                const modifiedPercentage = category.total > 0 ? Math.round((category.modified / category.total) * 100) : 0;
-                const unmodifiedPercentage = category.total > 0 ? Math.round((category.unmodified / category.total) * 100) : 0;
-                
-                tag.innerHTML = `
-                    <div class="category-name">${category.name} <span style="color: #718096; font-weight: normal;">(${category.total}个)</span></div>
-                    <div class="category-stats">
-                        <div class="category-stat-item">
-                            <span class="category-stat-value" style="color: #1a5fb4;">${category.modified}</span>
-                            <span class="category-stat-label">已完成 (${modifiedPercentage}%)</span>
-                        </div>
-                        <div class="category-stat-item">
-                            <span class="category-stat-value" style="color: #e53e3e;">${category.unmodified}</span>
-                            <span class="category-stat-label">未完成 (${unmodifiedPercentage}%)</span>
-                        </div>
-                        <div class="category-stat-item">
-                            <span class="category-stat-value" style="color: #4a5568;">${category.total}</span>
-                            <span class="category-stat-label">总计</span>
-                        </div>
-                    </div>
-                `;
-                
-                container.appendChild(tag);
-            });
-            
-            // 添加统计信息
-            const stats = document.createElement('div');
-            stats.style.marginTop = '15px';
-            stats.style.padding = '10px';
-            stats.style.backgroundColor = '#f7fafc';
-            stats.style.borderRadius = '6px';
-            stats.style.fontSize = '14px';
-            
-            if (categories.length > 0) {
-                const totalCategories = categories.length;
-                const totalItems = categories.reduce((sum, cat) => sum + cat.total, 0);
-                const totalUnmodified = categories.reduce((sum, cat) => sum + cat.unmodified, 0);
-                const topCategory = categories[0];
-                
-                stats.innerHTML = `
-                    <strong>统计摘要</strong>: 
-                    共发现 <strong>${totalCategories}</strong> 种模块分类，
-                    总计 <strong>${totalItems}</strong> 个模块。
-                    其中 <strong>${topCategory.name}</strong> 分类未完成数量最多 (${topCategory.unmodified}个)。
-                    总未完成率: <strong style="color: ${totalUnmodified > 0 ? '#e53e3e' : '#10b981'}">${totalItems > 0 ? Math.round((totalUnmodified / totalItems) * 100) : 0}%</strong>
-                `;
+            if(newRow.duration === undefined) newRow.duration = 0;
+            if(!newRow.powerType) newRow.powerType = "其他";
+            if(!newRow.platform) newRow.platform = "其他";
+            if(!newRow.line) newRow.line = "未知";
+            if(!newRow.station) newRow.station = "未知";
+            if(!newRow.date) newRow.date = "";
+            if(!newRow.modelCode) newRow.modelCode = "";
+            if(!newRow.reason) newRow.reason = "";
+            // 主因处理：优先使用Excel中的主因，否则自动归类
+            if(newRow.mainCause && newRow.mainCause !== "") {
+                newRow.mainCause = newRow.mainCause;
             } else {
-                stats.innerHTML = `<strong>统计摘要</strong>: 未发现模块分类数据`;
+                newRow.mainCause = classifyMainCause(newRow.reason);
             }
-            
-            container.appendChild(stats);
+            if(newRow.duration > 0) mapped.push(newRow);
         }
-        
-        // 渲染修改人排行榜
-        function renderRankingTable() {
-            // 统计修改人完成数量
-            const modifierStats = {};
-            
-            filteredData.forEach(item => {
-                if (item.modifier && item.modifier.trim() !== "") {
-                    if (!modifierStats[item.modifier]) {
-                        modifierStats[item.modifier] = 0;
-                    }
-                    modifierStats[item.modifier]++;
-                }
-            });
-            
-            // 转换为数组并按数量排序
-            const ranking = Object.keys(modifierStats).map(modifier => {
-                return { name: modifier, count: modifierStats[modifier] };
-            }).sort((a, b) => b.count - a.count);
-            
-            // 渲染到表格
-            const tableBody = document.getElementById('rankingTable');
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = '';
-            
-            if (ranking.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #718096; padding: 30px;">
-                            暂无修改人数据
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // 计算最大数量用于进度条
-            const maxCount = Math.max(...ranking.map(r => r.count));
-            
-            ranking.forEach((item, index) => {
-                const row = document.createElement('tr');
-                
-                // 设置排名徽章
-                let badgeClass = '';
-                if (index === 0) badgeClass = 'gold';
-                else if (index === 1) badgeClass = 'silver';
-                else if (index === 2) badgeClass = 'bronze';
-                
-                const rankBadge = `<span class="rank-badge ${badgeClass}">${index + 1}</span>`;
-                
-                // 计算百分比
-                const percentage = maxCount > 0 ? Math.round((item.count / maxCount) * 100) : 0;
-                
-                row.innerHTML = `
-                    <td>${rankBadge}</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.count} 个</td>
-                    <td>${percentage}%</td>
-                    <td>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${percentage}%"></div>
-                        </div>
-                    </td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
+        if(mapped.length === 0) throw new Error("未找到有效停线记录");
+        rawData = mapped;
+        saveDataToCache(rawData, fileName);
+        applyFilters();
+        document.getElementById('currentFileName').innerText = fileName;
+        document.getElementById('dataStatus').innerHTML = `<i class="bi bi-check-circle-fill"></i> ✅ 数据加载成功：${fileName}，共 ${rawData.length} 条记录，涉及 ${getModelSet(rawData).size} 种车型。`;
+    }
+
+    document.getElementById('uploadExcel').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const fileName = file.name;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+                if(rows.length === 0) throw new Error("无数据行");
+                parseExcelAndLoad(rows, fileName);
+            } catch(err) { alert("解析失败：" + err.message); }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('quickImportBtn').addEventListener('click', () => {
+        alert(`请从以下路径选择Excel文件：\n${defaultPath}\n\n点击确定后，在文件选择窗口中手动选择该路径下的文件。`);
+        document.getElementById('uploadExcel').click();
+    });
+
+    document.getElementById('clearCacheBtn').addEventListener('click', () => {
+        if(confirm('确定清除所有缓存数据吗？清除后需要重新导入文件。')) clearCache();
+    });
+
+    document.getElementById('modeHover').addEventListener('click', () => {
+        currentChartMode = 'hover';
+        document.getElementById('modeHover').classList.add('active');
+        document.getElementById('modeDirect').classList.remove('active');
+        refreshAll();
+    });
+    document.getElementById('modeDirect').addEventListener('click', () => {
+        currentChartMode = 'direct';
+        document.getElementById('modeDirect').classList.add('active');
+        document.getElementById('modeHover').classList.remove('active');
+        refreshAll();
+    });
+
+    function downloadChart(chartId) {
+        const dom = document.getElementById(chartId);
+        if(!dom) { alert(`未找到图表容器: ${chartId}`); return; }
+        const chart = echarts.getInstanceByDom(dom);
+        if(!chart) { alert('图表尚未初始化'); return; }
+        const url = chart.getDataURL({ type: 'png', pixelRatio: 2 });
+        const link = document.createElement('a');
+        link.download = `${chartId}.png`;
+        link.href = url;
+        link.click();
+    }
+    document.body.addEventListener('click', (e) => {
+        if(e.target.classList.contains('chart-download-btn')) {
+            const chartId = e.target.getAttribute('data-chart-id');
+            if(chartId) downloadChart(chartId);
         }
-        
-        // 渲染数据表格
-        function renderDataTable() {
-            const tableBody = document.getElementById('dataTable');
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = '';
-            
-            if (filteredData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: #718096; padding: 40px;">
-                            暂无数据，请尝试更改筛选条件
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // 只显示前100条数据，避免页面卡顿
-            const displayData = filteredData.slice(0, 100);
-            
-            displayData.forEach(item => {
-                const row = document.createElement('tr');
-                
-                // 确定修改状态
-                const isModified = item.modifyTime !== "" && item.modifier;
-                const statusText = isModified ? '已修改' : '未修改';
-                const statusClass = isModified ? 'highlight' : '';
-                const statusColor = isModified ? '#1a5fb4' : '#e53e3e';
-                
-                // 提取模块分类
-                let moduleCategory = '';
-                if (item.moduleCode) {
-                    const parts = item.moduleCode.split('-');
-                    if (parts.length > 1) {
-                        moduleCategory = parts[1].substring(0, 3);
-                    }
-                }
-                
-                row.innerHTML = `
-                    <td>${item.id || '-'}</td>
-                    <td>${item.stationCode || '-'}</td>
-                    <td>${item.stationName || '-'}</td>
-                    <td>
-                        ${item.moduleCode || '-'}
-                        ${moduleCategory ? `<br><small style="color: #1a5fb4;">分类: ${moduleCategory}</small>` : ''}
-                    </td>
-                    <td>${item.createTime || '-'}</td>
-                    <td><span class="${statusClass}" style="color: ${statusColor}; font-weight: 500;">${statusText}</span></td>
-                    <td>${item.modifier || '-'}</td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-            
-            // 如果数据超过100条，显示提示
-            if (filteredData.length > 100) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td colspan="7" style="text-align: center; color: #718096; padding: 15px; font-size: 12px;">
-                        仅显示前100条记录，总共 ${filteredData.length} 条记录
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            }
-        }
-    </script>
+    });
+
+    document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
+        const template = [
+            { "停线日期": "2026-01-04", "生产线": "主线一", "停线工位": "电池包吊装", "停线时间": 1.58, "车型代码": "3H50FAAW4540ZBA01F1-007", "动力类型": "电车", "平台": "自卸", "停线原因": "电池包吊装不及", "主因": "超节拍排产" },
+            { "停线日期": "2026-01-05", "生产线": "主线二", "停线工位": "发动机吊装", "停线时间": 3.5, "车型代码": "1H50WOSADS130CMA01-001T", "动力类型": "燃油", "平台": "载货", "停线原因": "新品首台ECU挡发动机落装", "主因": "首台验证" }
+        ];
+        const ws = XLSX.utils.json_to_sheet(template);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "停线数据模板");
+        XLSX.writeFile(wb, "新品停线分析模板.xlsx");
+    });
+
+    document.getElementById('exportWordBtn').addEventListener('click', () => {
+        if(!rawData.length) { alert("请先导入数据"); return; }
+        const style = `<style>body{font-family: Arial, sans-serif; margin: 20px;} table{border-collapse:collapse; width:100%;} th,td{border:1px solid #aaa; padding:6px;} .insight-note{background:#eef2ff; padding:10px;}</style>`;
+        const powerSel = Array.from(document.getElementById('filterPower').selectedOptions).map(o=>o.value).join(',');
+        const lineSel = Array.from(document.getElementById('filterLine').selectedOptions).map(o=>o.value).join(',');
+        const platSel = Array.from(document.getElementById('filterPlatform').selectedOptions).map(o=>o.value).join(',');
+        const mainSel = Array.from(document.getElementById('filterMainCause').selectedOptions).map(o=>o.value).join(',');
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>停线分析报告</title>${style}</head><body>
+            <h1>新品首台车停线分析报告</h1><p>生成时间: ${new Date().toLocaleString()}</p>
+            <p>筛选条件: 动力=${powerSel} | 产线=${lineSel} | 平台=${platSel} | 主因=${mainSel}</p>
+            <div>总停线时长: ${document.getElementById('totalTime').innerText} 分钟 &nbsp; 频次: ${document.getElementById('totalFreq').innerText} &nbsp; 车型数: ${document.getElementById('modelCount').innerText}</div>
+            <h3>按动力类型统计</h3>${document.querySelector('#tablePower').outerHTML}
+            <h3>按平台统计</h3>${document.querySelector('#tablePlatform').outerHTML}
+            <h3>按生产线统计</h3>${document.querySelector('#tableLine').outerHTML}
+            <h3>按停线主因统计</h3>${document.querySelector('#tableMainCause').outerHTML}
+            <h3>TOP10工位</h3>${document.querySelector('#tableStation').outerHTML}
+            <h3>停线明细（前300条）</h3>${document.getElementById('detailTable').outerHTML}
+            <div>${document.getElementById('insightArea').innerHTML}</div>
+            </body></html>`;
+        const blob = new Blob([html], { type: 'application/msword' });
+        saveAs(blob, `停线分析报告_${new Date().toISOString().slice(0,19)}.doc`);
+    });
+
+    // 筛选器事件
+    document.getElementById('filterPower').addEventListener('change', applyFilters);
+    document.getElementById('filterLine').addEventListener('change', applyFilters);
+    document.getElementById('filterPlatform').addEventListener('change', applyFilters);
+    document.getElementById('filterStation').addEventListener('input', applyFilters);
+    document.getElementById('filterMainCause').addEventListener('change', applyFilters);
+    document.getElementById('resetFilter').addEventListener('click', () => {
+        document.getElementById('filterPower').selectedIndex = 0;
+        document.getElementById('filterLine').selectedIndex = 0;
+        document.getElementById('filterPlatform').selectedIndex = 0;
+        document.getElementById('filterMainCause').selectedIndex = 0;
+        document.getElementById('filterStation').value = '';
+        ['filterPower','filterLine','filterPlatform','filterMainCause'].forEach(id => {
+            const sel = document.getElementById(id);
+            for(let i=0;i<sel.options.length;i++) sel.options[i].selected = (sel.options[i].value === 'all');
+        });
+        applyFilters();
+    });
+
+    window.addEventListener('resize', () => { Object.values(charts).forEach(ch => ch && ch.resize()); });
+    loadDataFromCache();
+</script>
 </body>
 </html>
